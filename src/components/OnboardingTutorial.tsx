@@ -55,14 +55,16 @@ export const OnboardingTutorial: React.FC<OnboardingTutorialProps> = ({ onComple
   ];
 
   // Auto-play audio for first step
+  // Fixed: Added playStepAudio to dependencies
   useEffect(() => {
     if (currentStep === 0) {
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         playStepAudio(0);
       }, 500);
+      
+      return () => clearTimeout(timeoutId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStep]);
+  }, [currentStep, playStepAudio]);
 
   const playStepAudio = useCallback(async (stepIndex: number) => {
     try {

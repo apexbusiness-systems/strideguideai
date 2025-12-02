@@ -184,51 +184,64 @@ export const useLostItemFinder = () => {
       });
       
       // Start processing loop (8 FPS)
+      // Fixed: Added comprehensive error handling to prevent silent failures
       searchInterval.current = setInterval(async () => {
-        const canvas = document.createElement('canvas');
-        const video = document.querySelector('video');
-        if (!video) return;
-        
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        
-        ctx.drawImage(video, 0, 0);
-        
-        // Process frame
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const liveSignature = createSignature(imageData);
-        const proximity = estimateProximity(liveSignature, item.signatures);
-        
-        if (proximity.confidence >= settings.confidenceThreshold) {
-          const centerX = liveSignature.keypoints.reduce((sum, kp) => sum + kp.x, 0) / liveSignature.keypoints.length;
-          const direction = centerX < 0.33 ? 'left' : centerX > 0.66 ? 'right' : 'center';
+        try {
+          const canvas = document.createElement('canvas');
+          const video = document.querySelector('video');
+          if (!video) return;
           
-          const result: SearchResult = {
-            confidence: proximity.confidence,
-            boundingBox: {
-              x: Math.max(0, centerX - 0.2),
-              y: 0.3,
-              width: 0.4,
-              height: 0.4
-            },
-            distance: proximity.distance,
-            direction,
-            timestamp: Date.now()
-          };
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
           
-          setCurrentSearchResult(result);
+          ctx.drawImage(video, 0, 0);
           
-          if (settings.audioEnabled) {
-            playAudioGuidance(result);
+          // Process frame with error handling
+          try {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const liveSignature = createSignature(imageData);
+            const proximity = estimateProximity(liveSignature, item.signatures);
+            
+            if (proximity.confidence >= settings.confidenceThreshold) {
+              const centerX = liveSignature.keypoints.reduce((sum, kp) => sum + kp.x, 0) / liveSignature.keypoints.length;
+              const direction = centerX < 0.33 ? 'left' : centerX > 0.66 ? 'right' : 'center';
+              
+              const result: SearchResult = {
+                confidence: proximity.confidence,
+                boundingBox: {
+                  x: Math.max(0, centerX - 0.2),
+                  y: 0.3,
+                  width: 0.4,
+                  height: 0.4
+                },
+                distance: proximity.distance,
+                direction,
+                timestamp: Date.now()
+              };
+              
+              setCurrentSearchResult(result);
+              
+              if (settings.audioEnabled) {
+                playAudioGuidance(result);
+              }
+              
+              if (settings.hapticsEnabled) {
+                triggerHapticFeedback(result.distance);
+              }
+            } else {
+              setCurrentSearchResult(null);
+            }
+          } catch (processingError) {
+            // Log error but continue processing - don't stop interval on single frame failure
+            console.error('Error processing frame in lost item finder:', processingError);
+            // Optionally set error state or show user notification
           }
-          
-          if (settings.hapticsEnabled) {
-            triggerHapticFeedback(result.distance);
-          }
-        } else {
-          setCurrentSearchResult(null);
+        } catch (error) {
+          // Catch-all for any unexpected errors
+          console.error('Unexpected error in lost item finder interval:', error);
+          // Don't stop interval - allow recovery on next frame
         }
       }, 125); // 8 FPS
       

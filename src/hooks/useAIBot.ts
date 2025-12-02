@@ -146,7 +146,12 @@ export const useAIBot = (user: User | null) => {
   }, [user, toast, flags.enableEdgeCheck]);
 
   // Initialize bot when user changes or component mounts
+  // Fixed: Removed initializeBot from dependencies to prevent circular dependency
+  // Fixed: Added proper cleanup for timeout
   useEffect(() => {
+    // Use ref to track if component is mounted
+    let isMounted = true;
+
     if (user && !state.isConnected && !state.isLoading) {
       logger.debug('AI Bot: User authenticated, initializing bot');
       initializeBot();
@@ -157,25 +162,31 @@ export const useAIBot = (user: User | null) => {
         clearTimeout(reconnectionTimeoutRef.current);
         reconnectionTimeoutRef.current = null;
       }
-      setState({
-        isActive: false,
-        isConnected: false,
-        isLoading: false,
-        error: null,
-        messages: [],
-        connectionAttempts: 0,
-      });
+      if (isMounted) {
+        setState({
+          isActive: false,
+          isConnected: false,
+          isLoading: false,
+          error: null,
+          messages: [],
+          connectionAttempts: 0,
+        });
+      }
       initializationRef.current = false;
     }
 
     // Cleanup on unmount
     return () => {
+      isMounted = false;
       if (reconnectionTimeoutRef.current) {
         clearTimeout(reconnectionTimeoutRef.current);
         reconnectionTimeoutRef.current = null;
       }
     };
-  }, [user, state.isConnected, state.isLoading, initializeBot]);
+    // Note: initializeBot intentionally excluded to prevent circular dependency
+    // It's stable due to useCallback with proper dependencies (user, toast, flags.enableEdgeCheck)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, state.isConnected, state.isLoading]);
 
   // Monitor authentication state changes
   useEffect(() => {
@@ -231,6 +242,7 @@ export const useAIBot = (user: User | null) => {
         throw new Error('Edge functions disabled');
       }
       // Call AI chat edge function
+      // Note: supabase is stable import, not a dependency
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { 
           messages: [
@@ -267,7 +279,7 @@ export const useAIBot = (user: User | null) => {
         variant: "destructive",
       });
     }
-  }, [state.isConnected, user, state.messages, toast, flags.enableEdgeCheck, supabase]);
+  }, [state.isConnected, user, state.messages, toast, flags.enableEdgeCheck]);
 
   const retryConnection = useCallback(() => {
     setState(prev => ({ ...prev, connectionAttempts: 0, error: null }));

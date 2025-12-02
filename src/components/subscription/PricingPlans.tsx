@@ -51,8 +51,7 @@ export const PricingPlans = ({ currentPlan, onSelectPlan }: PricingPlansProps) =
 
   useEffect(() => {
     loadPlans();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadPlans]);
 
   const loadPlans = useCallback(async () => {
     try {

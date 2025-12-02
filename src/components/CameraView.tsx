@@ -37,19 +37,20 @@ export const CameraView: React.FC<CameraViewProps> = ({
   });
 
   // Extract camera functions and state to avoid object dependency issues
+  // Use primitive values and direct method calls to prevent infinite re-renders
   const cameraIsActive = camera.isActive;
   const cameraError = camera.error;
-  const startCamera = useCallback(() => camera.startCamera(), [camera]);
-  const stopCamera = useCallback(() => camera.stopCamera(), [camera]);
-  const startFrameProcessing = useCallback((callback: (imageData: ImageData) => void, targetFPS: number) =>
-    camera.startFrameProcessing(callback, targetFPS), [camera]);
-  const stopFrameProcessing = useCallback(() => camera.stopFrameProcessing(), [camera]);
+  
+  // Direct method calls - hooks return stable references
+  // No need to wrap in useCallback as methods are already stable from hooks
+  const startCamera = camera.startCamera;
+  const stopCamera = camera.stopCamera;
+  const startFrameProcessing = camera.startFrameProcessing;
+  const stopFrameProcessing = camera.stopFrameProcessing;
 
-  // Extract journey trace functions
-  const completeJourneyTrace = useCallback((data: { fps_avg: number }) =>
-    journeyTrace.complete(data), [journeyTrace]);
-  const failJourneyTrace = useCallback((error: string) =>
-    journeyTrace.fail(error), [journeyTrace]);
+  // Journey trace methods are stable from hook
+  const completeJourneyTrace = journeyTrace.complete;
+  const failJourneyTrace = journeyTrace.fail;
 
   // Start/stop camera based on isActive prop
   useEffect(() => {

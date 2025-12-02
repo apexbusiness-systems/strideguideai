@@ -28,8 +28,7 @@ export const SubscriptionManager = ({ user }: SubscriptionManagerProps) => {
     if (subscription) {
       loadUsageData();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscription]);
+  }, [subscription, loadUsageData]);
 
   const loadUsageData = useCallback(async () => {
     if (!subscription) return;

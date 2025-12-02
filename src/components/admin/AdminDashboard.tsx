@@ -59,8 +59,7 @@ export const AdminDashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadDashboardData]);
 
   const loadDashboardData = useCallback(async () => {
     setIsLoading(true);

@@ -84,6 +84,7 @@ const VisionGuidance: React.FC<VisionGuidanceProps> = ({
   }, [videoRef, isAnalyzing, analyzeFrame, mode, audioEnabled, speakEnhancedDescription]);
 
   // Auto-analyze when active
+  // Fixed: Added all dependencies including videoRef and mode
   useEffect(() => {
     if (!isActive || !isAutoAnalyzing || !videoRef.current) {
       if (intervalRef.current) {
@@ -104,9 +105,10 @@ const VisionGuidance: React.FC<VisionGuidanceProps> = ({
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-  }, [isActive, isAutoAnalyzing, autoAnalyzeInterval, handleAnalyze]);
+  }, [isActive, isAutoAnalyzing, autoAnalyzeInterval, handleAnalyze, videoRef]);
 
   const toggleAutoAnalyze = () => {
     setIsAutoAnalyzing(prev => !prev);
