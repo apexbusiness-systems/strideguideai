@@ -1,14 +1,14 @@
 # PWA Requirements and Testing Checklist
 
-This document outlines the requirements for Progressive Web App (PWA) functionality in TradeLine 24/7 and provides a testing checklist to prevent regression.
+This document outlines the requirements for Progressive Web App (PWA) functionality in StrideGuide and provides a testing checklist to prevent regression.
 
 ## Required Files and Locations
 
 ### 1. Manifest File
 - **Location**: `public/manifest.webmanifest`
 - **Required Fields**:
-  - `name`: Full application name (e.g., "TradeLine 24/7 - AI Receptionist")
-  - `short_name`: Short name for app launcher (e.g., "TradeLine247")
+  - `name`: Full application name (e.g., "StrideGuide - AI Vision Assistant")
+  - `short_name`: Short name for app launcher (e.g., "StrideGuide")
   - `start_url`: Entry point URL (e.g., "/app?source=pwa")
   - `scope`: URL scope for PWA (e.g., "/app")
   - `display`: Display mode ("standalone", "fullscreen", or "minimal-ui")
@@ -38,9 +38,9 @@ This document outlines the requirements for Progressive Web App (PWA) functional
 - **Location**: `index.html`
 - **Required Tags**:
   - `<link rel="manifest" href="/manifest.webmanifest" />`
-  - `<meta name="application-name" content="TradeLine 24/7" />`
+  - `<meta name="application-name" content="StrideGuide" />`
   - `<meta name="apple-mobile-web-app-capable" content="yes" />`
-  - `<meta name="apple-mobile-web-app-title" content="TradeLine247" />`
+  - `<meta name="apple-mobile-web-app-title" content="StrideGuide" />`
   - `<meta name="theme-color" content="#3730A3" />`
 
 ## PWA Installability Criteria
@@ -83,13 +83,13 @@ For a PWA to be installable, it must meet ALL of the following criteria:
 
 - [ ] Manifest file exists and is valid JSON
 - [ ] Manifest contains all required fields
-- [ ] Manifest has TradeLine247 branding (not StrideGuide)
+- [ ] Manifest has StrideGuide branding
 - [ ] Manifest icons reference existing files
 - [ ] HTML has manifest link tag
 - [ ] HTML meta tags are correct
 - [ ] Service worker file exists at `public/app/sw.js`
 - [ ] Service worker registration code exists in `src/sw/register.ts`
-- [ ] Service worker has TradeLine247 branding (not StrideGuide)
+- [ ] Service worker has StrideGuide branding
 - [ ] Icon files referenced in manifest exist
 
 ### Automated Tests
@@ -231,5 +231,6 @@ console.log(PWADiagnostic.formatResult(result));
 - [Service Worker API](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)
 - [PWA Checklist](https://web.dev/pwa-checklist/)
 - [Lighthouse PWA Audit](https://developers.google.com/web/tools/lighthouse)
+
 
 

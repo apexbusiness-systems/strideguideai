@@ -1,4 +1,4 @@
-// @tradeline/sw-register v3.1 — Scoped to /app/sw.js in production; unregisters root SW; preview cleanup
+// @stride/sw-register v3.1 — Scoped to /app/sw.js in production; unregisters root SW; preview cleanup
 export function registerSW() {
   const isPreview = window.location.hostname.includes('lovableproject.com');
   const isAppRoute = window.location.pathname.startsWith('/app');

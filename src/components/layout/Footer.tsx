@@ -1,5 +1,5 @@
 import React from 'react';
-import { Logo } from '@/components/ui/logo';
+import { Logo } from '@/components/Logo';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
@@ -23,11 +23,11 @@ export const Footer: React.FC = () => {
               <Logo variant="text" size="sm" />
             </div>
             <address className="not-italic text-sm">
-              <strong>Apex Business Systems</strong> • Edmonton, Alberta • Built Canadian<br />                                                             
-              <a href="mailto:info@tradeline247ai.com" className="hover:text-foreground transition-colors" style={{ color: '#FF6B35' }}>info@tradeline247ai.com</a>                                                                             
+              <strong>StrideGuide</strong> • Built for accessibility • Made in Canada<br />                                                             
+              <a href="mailto:info@strideguide.cam" className="hover:text-foreground transition-colors" style={{ color: '#FF6B35' }}>info@strideguide.cam</a>                                                                             
             </address>
             <div className="flex items-center gap-3 text-sm text-muted-foreground mt-2">                                                                        
-              <span>© 2025 <span style={{ color: '#FF6B35' }}>TradeLine 24/7</span>. Never miss a call. We got it.</span>                                      
+              <span>© 2025 <span style={{ color: '#FF6B35' }}>StrideGuide</span>. Walk with confidence.</span>                                      
             </div>
           </div>
 
@@ -67,7 +67,7 @@ export const Footer: React.FC = () => {
               Terms
             </a>
             <a
-              href="mailto:info@tradeline247ai.com"
+              href="mailto:info@strideguide.cam"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"                                                                 
             >
               Contact
@@ -78,5 +78,6 @@ export const Footer: React.FC = () => {
     </footer>
   );
 };
+
 
 

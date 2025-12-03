@@ -1,45 +1,27 @@
 import { CSSProperties, useEffect } from "react";
 import { Footer } from "@/components/layout/Footer";
-import HeroRoiDuo from "@/sections/HeroRoiDuo";
 import { TrustBadgesSlim } from "@/components/sections/TrustBadgesSlim";        
 import { BenefitsGrid } from "@/components/sections/BenefitsGrid";
 import { ImpactStrip } from "@/components/sections/ImpactStrip";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";        
 import { NoAIHypeFooter } from "@/components/sections/NoAIHypeFooter";
-import { useAnalytics } from "@/hooks/useAnalytics";
-import { AISEOHead } from "@/components/seo/AISEOHead";
-import backgroundImage from "@/assets/BACKGROUND_IMAGE1.svg";
-import { QuickActionsCard } from "@/components/dashboard/QuickActionsCard";     
+// import { useAnalytics } from "@/hooks/useAnalytics";
+import { SEOHead } from "@/components/SEOHead";
+// import { QuickActionsCard } from "@/components/dashboard/QuickActionsCard";     
 import { errorReporter } from "@/lib/errorReporter";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
 
 const Index = () => {
-  const { trackPageView } = useAnalytics();
+  // const { trackPageView } = useAnalytics();
   const { i18n } = useTranslation();
 
-  useEffect(() => {
-    trackPageView("home");
-  }, [trackPageView]);
+  // useEffect(() => {
+  //   trackPageView("home");
+  // }, [trackPageView]);
 
-  // Preload background image for faster rendering
-  useEffect(() => {
-    const img = new Image();
-    img.src = backgroundImage;
-    img.onerror = () => {
-      errorReporter.report({
-        type: 'error',
-        message: 'Background image failed to load',
-        timestamp: new Date().toISOString(),
-        url: window.location.href,
-        userAgent: navigator.userAgent,
-        environment: errorReporter['getEnvironment'](),
-        metadata: { imageSrc: backgroundImage }
-      });
-    };
-  }, []);
 
   // Language toggle handler - works on all platforms
   const toggleLanguage = () => {
@@ -49,11 +31,11 @@ const Index = () => {
   };
 
   const wallpaperStyle = {
-    backgroundImage: `url(${backgroundImage})`,
+    backgroundColor: "hsl(0, 0%, 97%)",
   } as CSSProperties;
 
   const wallpaperVariables = {
-    ["--hero-wallpaper-image" as const]: `url(${backgroundImage})`,
+    ["--hero-wallpaper-image" as const]: "none",
   } as CSSProperties;
 
   const landingBackgroundStyle = {
@@ -74,50 +56,53 @@ const Index = () => {
       >
         {/* Content with translucency - Optimized for performance */}
         <div className="relative z-10" style={{ minHeight: "100vh" }}>
-          <AISEOHead
-              title="TradeLine 24/7 - Your 24/7 AI Receptionist!"
-              description="Get fast and reliable customer service that never sleeps. Handle calls, messages, and inquiries 24/7 with human-like responses. Start growing now!"                                                                  
+          <SEOHead
+              title="StrideGuide - AI Vision Assistant for Blind & Low Vision Users"
+              description="Free offline AI seeing-eye assistant for blind, low vision, and senior users in Canada. Real-time obstacle detection, voice guidance, and emergency SOS. Works without internet. English & French."                                                                  
               canonical="/"
               contentType="service"
-              directAnswer="TradeLine 24/7 is an AI-powered receptionist service that answers phone calls 24/7, qualifies leads based on your criteria, and sends clean email transcripts to Canadian businesses. Never miss a call. Work while you sleep."                                                                     
+              directAnswer="StrideGuide is an offline-first AI vision assistant that helps blind, low vision, and senior users navigate safely. It provides real-time obstacle detection, stereo audio guidance, fall detection, and emergency SOS capabilities. Works completely offline with no internet required."                                                                     
               primaryEntity={{
-                name: "TradeLine 24/7 AI Receptionist Service",
+                name: "StrideGuide - AI Vision Assistant",
                 type: "Service",
-                description: "24/7 AI-powered phone answering service for Canadian businesses",                                                                 
+                description: "Offline-first AI seeing-eye assistant for blind, low vision, and senior users",                                                                 
               }}
               keyFacts={[
-                { label: "Availability", value: "24/7" },
-                { label: "Response Time", value: "<2 seconds" },
-                { label: "Uptime", value: "99.9%" },
+                { label: "Offline Support", value: "100% offline" },
+                { label: "Languages", value: "English & French" },
+                { label: "Accessibility", value: "WCAG 2.2 AA+" },
                 { label: "Service Area", value: "Canada" },
               ]}
               faqs={[
                 {
-                  question: "What is TradeLine 24/7?",
+                  question: "What is StrideGuide?",
                   answer:
-                    "TradeLine 24/7 is an AI-powered receptionist service that answers phone calls 24/7, qualifies leads based on your criteria, and sends clean email transcripts. It never misses a call and works while you sleep.",         
+                    "StrideGuide is a free offline AI vision assistant that helps blind, low vision, and senior users navigate safely. It provides real-time obstacle detection, voice guidance, and emergency SOS capabilities.",         
                 },
                 {
-                  question: "How does TradeLine 24/7 work?",
+                  question: "How does StrideGuide work?",
                   answer:
-                    "When a call comes in, our AI answers immediately, has a natural conversation with the caller, qualifies them based on your criteria, and sends you a clean email transcript with all the details.",                        
+                    "StrideGuide uses on-device AI to detect obstacles in real-time, provides stereo audio guidance to help you navigate safely, and includes fall detection with emergency SOS capabilities. All processing happens on your device - no internet required.",                        
                 },
                 {
-                  question: "What areas does TradeLine 24/7 serve?",
+                  question: "Does StrideGuide work offline?",
                   answer:
-                    "TradeLine 24/7 serves businesses across Canada, with primary operations in Edmonton, Alberta.",                                            
+                    "Yes! StrideGuide works 100% offline. All AI processing happens on your device, so you don't need internet connectivity for core features like obstacle detection and voice guidance.",                                            
                 },
                 {
-                  question: "How much does TradeLine 24/7 cost?",
+                  question: "Is StrideGuide free?",
                   answer:
-                    "TradeLine 24/7 offers flexible pricing: $149 CAD per qualified appointment (pay-per-use) or $249 CAD per month for the Predictable Plan.", 
+                    "Yes! StrideGuide offers a free tier with 2 hours of daily guidance time. Premium features including night mode and extended usage are available for $28.99/month.", 
                 },
               ]}
             />
 
           <div className="hero-background relative">
             <div className="hero-gradient-tint" aria-hidden="true" />
-            <HeroRoiDuo />
+            <div className="container mx-auto px-4 py-16 text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">StrideGuide</h1>
+              <p className="text-xl text-muted-foreground mb-8">Your seeing-eye assistant in your pocket</p>
+            </div>
           </div>
           {/* Sections below hero with extended mask overlay */}
           <div className="relative">
@@ -138,7 +123,10 @@ const Index = () => {
                   <p className="text-muted-foreground">
                     Jump straight into the workflows you use every day. These shortcuts survive refreshes and deep links.
                   </p>
-                  <QuickActionsCard />
+                  {/* <QuickActionsCard /> */}
+                  <div className="p-4 bg-card rounded-lg">
+                    <p className="text-muted-foreground">Quick Actions Coming Soon</p>
+                  </div>
                 </div>
               </div>
               <TrustBadgesSlim />

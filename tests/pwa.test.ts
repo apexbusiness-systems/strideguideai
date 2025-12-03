@@ -74,17 +74,17 @@ describe('PWA Validation', () => {
       expect(hasValidIcon).toBe(true);
     });
 
-    it('should have TradeLine247 branding', () => {
+    it('should have StrideGuide branding', () => {
       const manifestPath = join(publicDir, 'manifest.webmanifest');
       const manifestContent = readFileSync(manifestPath, 'utf-8');
       const manifest = JSON.parse(manifestContent);
 
-      // Check that it's not StrideGuide
-      expect(manifest.name).not.toContain('StrideGuide');
-      expect(manifest.short_name).not.toContain('StrideGuide');
+      // Check that it's StrideGuide
+      expect(manifest.name).toContain('StrideGuide');
+      expect(manifest.short_name).toContain('StrideGuide');
       
-      // Check that it contains TradeLine branding
-      expect(manifest.name).toMatch(/TradeLine|24\/7/i);
+      // Check that it does NOT contain TradeLine branding
+      expect(manifest.name).not.toMatch(/TradeLine|24\/7/i);
     });
   });
 
@@ -112,12 +112,14 @@ describe('PWA Validation', () => {
       expect(registerContent).toContain('serviceWorker.register');
     });
 
-    it('should have TradeLine247 branding in service worker', () => {
+    it('should have StrideGuide branding in service worker', () => {
       const swPath = join(publicDir, 'app', 'sw.js');
       const swContent = readFileSync(swPath, 'utf-8');
       
-      // Check that it's not StrideGuide
-      expect(swContent).not.toContain('StrideGuide');
+      // Check that it's StrideGuide
+      expect(swContent).toContain('StrideGuide');
+      // Check that it does NOT contain TradeLine branding
+      expect(swContent).not.toMatch(/TradeLine|24\/7/i);
     });
   });
 
@@ -135,12 +137,12 @@ describe('PWA Validation', () => {
   });
 
   describe('HTML Meta Tags', () => {
-    it('should have TradeLine247 branding in title', () => {
+    it('should have StrideGuide branding in title', () => {
       const indexPath = join(rootDir, 'index.html');
       const htmlContent = readFileSync(indexPath, 'utf-8');
       
-      expect(htmlContent).not.toContain('StrideGuide');
-      expect(htmlContent).toMatch(/TradeLine|24\/7/i);
+      expect(htmlContent).toContain('StrideGuide');
+      expect(htmlContent).not.toMatch(/TradeLine|24\/7/i);
     });
 
     it('should have application-name meta tag', () => {
@@ -158,5 +160,6 @@ describe('PWA Validation', () => {
     });
   });
 });
+
 
 
