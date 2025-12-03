@@ -25,6 +25,7 @@ const AuthDiagnosticsPage = lazy(() => import("./pages/AuthDiagnosticsPage"));
 const AuthMinPage = lazy(() => import("./pages/AuthMinPage"));
 const Diag = lazy(() => import("./pages/_diag"));
 const VoiceAssistantPage = lazy(() => import("./pages/VoiceAssistantPage"));
+const PWADiagnosticsPage = lazy(() => import("./pages/PWADiagnosticsPage"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -199,6 +200,7 @@ const App = () => {
                 <Route path="/auth-diagnostics" element={<AuthDiagnosticsPage />} />
                 <Route path="/auth-min" element={<AuthMinPage />} />
                 <Route path="/_diag" element={<Diag />} />
+                <Route path="/pwa-diagnostics" element={<PWADiagnosticsPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

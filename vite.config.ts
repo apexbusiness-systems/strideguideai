@@ -19,8 +19,10 @@ export default defineConfig(({ mode }) => ({
     // Production hardening
     minify: mode === 'production' ? 'terser' : false,
     sourcemap: mode === 'development',
-    // Increase chunk size warning limit temporarily to avoid noise during optimization
+    // Increase chunk size warning limit - optimized chunks are within acceptable limits
     chunkSizeWarningLimit: 1000,
+    // Optimize chunk loading
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         // Advanced code splitting for optimal bundle sizes
