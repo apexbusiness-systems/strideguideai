@@ -1,5 +1,5 @@
-// @tradeline/sw-app v3.1 — Scoped to /app/ only; GET-only allowlist; update prompt; production-hardened
-const CACHE = "tl-app-2025-01-13-v3.1";
+// @stride/sw-app v3.1 — Scoped to /app/ only; GET-only allowlist; update prompt; production-hardened
+const CACHE = "sg-app-2025-01-13-v3.1";
 const ALLOW = [
   /^\/app\/$/,
   /^\/app\/index\.html$/,
@@ -90,9 +90,9 @@ self.addEventListener("push", (e) => {
           { action: 'dismiss', title: 'Dismiss' }
         ]
       };
-      e.waitUntil(self.registration.showNotification(data.title || 'TradeLine 24/7 Alert', options));
+      e.waitUntil(self.registration.showNotification(data.title || 'StrideGuide Alert', options));
     }
   }
 });
 
-console.log('[SW/app] TradeLine 24/7 /app/ Service Worker v3.1 loaded');
+console.log('[SW/app] StrideGuide /app/ Service Worker v3.1 loaded');

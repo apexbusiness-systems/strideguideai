@@ -1,7 +1,7 @@
 {
-  "name": "TradeLine 24/7 - AI Receptionist",
-  "short_name": "TradeLine247",
-  "description": "Your 24/7 AI Receptionist - Never miss a call. Work while you sleep. Professional call handling, forwarding, and management.",
+  "name": "StrideGuide - AI Vision Assistant",
+  "short_name": "StrideGuide",
+  "description": "Free offline AI seeing-eye assistant for blind, low vision, and senior users. Real-time obstacle detection, voice guidance, and emergency SOS. Works without internet.",
   "start_url": "/app?source=pwa",
   "scope": "/app",
   "display": "standalone",
@@ -33,11 +33,11 @@
       "sizes": "1200x630",
       "type": "image/png",
       "platform": "wide",
-      "label": "TradeLine 24/7 main interface showing call management and AI receptionist features"
+      "label": "StrideGuide main interface showing vision guidance and obstacle detection features"
     }
   ],
   "orientation": "portrait",
-  "categories": ["business", "productivity", "utilities"],
+  "categories": ["accessibility", "health", "utilities"],
   "lang": "en",
   "dir": "ltr"
 }
