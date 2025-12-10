@@ -63,7 +63,12 @@ describe('PWA Validation', () => {
       expect(Array.isArray(manifest.icons)).toBe(true);
       expect(manifest.icons.length).toBeGreaterThan(0);
 
-      const hasValidIcon = manifest.icons.some((icon: any) => {
+      interface IconEntry {
+        sizes?: string;
+        src: string;
+        type?: string;
+      }
+      const hasValidIcon = manifest.icons.some((icon: IconEntry) => {
         const sizes = icon.sizes?.split(' ') || [];
         return sizes.some((size: string) => {
           const dimension = parseInt(size.split('x')[0], 10);

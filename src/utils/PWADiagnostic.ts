@@ -1,30 +1,53 @@
 /**
  * PWA Diagnostic Utility
- * 
+ *
  * Comprehensive diagnostic tool to check PWA installability criteria,
  * manifest validity, service worker status, and icon availability.
  */
+
+export interface ManifestIcon {
+  src: string;
+  sizes?: string;
+  type?: string;
+  purpose?: string;
+}
+
+export interface WebManifest {
+  name?: string;
+  short_name?: string;
+  start_url?: string;
+  display?: string;
+  icons?: ManifestIcon[];
+  background_color?: string;
+  theme_color?: string;
+  description?: string;
+  [key: string]: unknown;
+}
+
+export interface ServiceWorkerDetails {
+  registered: boolean;
+  scope?: string;
+  state?: string;
+  scriptURL?: string;
+}
+
+export interface IconCheckDetails {
+  found: string[];
+  missing: string[];
+}
 
 export interface PWADiagnosticResult {
   isInstallable: boolean;
   criteria: {
     https: { passed: boolean; message: string };
-    manifest: { passed: boolean; message: string; details?: any };
-    serviceWorker: { passed: boolean; message: string; details?: any };
-    icons: { passed: boolean; message: string; details?: any };
+    manifest: { passed: boolean; message: string; details?: WebManifest };
+    serviceWorker: { passed: boolean; message: string; details?: ServiceWorkerDetails };
+    icons: { passed: boolean; message: string; details?: IconCheckDetails };
     display: { passed: boolean; message: string };
   };
-  manifest?: any;
-  serviceWorker?: {
-    registered: boolean;
-    scope?: string;
-    state?: string;
-    scriptURL?: string;
-  };
-  icons?: {
-    found: string[];
-    missing: string[];
-  };
+  manifest?: WebManifest;
+  serviceWorker?: ServiceWorkerDetails;
+  icons?: IconCheckDetails;
   errors: string[];
   warnings: string[];
 }
@@ -116,7 +139,7 @@ export class PWADiagnostic {
   /**
    * Check manifest validity and required fields
    */
-  static async checkManifest(): Promise<{ passed: boolean; message: string; details?: any }> {
+  static async checkManifest(): Promise<{ passed: boolean; message: string; details?: WebManifest }> {
     const manifestLink = document.querySelector('link[rel="manifest"]');
     if (!manifestLink) {
       return {
@@ -142,7 +165,7 @@ export class PWADiagnostic {
         };
       }
 
-      const manifest = await response.json();
+      const manifest = await response.json() as WebManifest;
 
       // Check required fields
       const requiredFields = ['name', 'short_name', 'start_url', 'display', 'icons'];
@@ -166,7 +189,7 @@ export class PWADiagnostic {
       }
 
       // Check for at least one icon with 192x192 or larger
-      const hasValidIcon = manifest.icons.some((icon: any) => {
+      const hasValidIcon = manifest.icons.some((icon: ManifestIcon) => {
         const sizes = icon.sizes?.split(' ') || [];
         return sizes.some((size: string) => {
           const dimension = parseInt(size.split('x')[0], 10);
@@ -198,7 +221,7 @@ export class PWADiagnostic {
   /**
    * Check service worker registration
    */
-  static async checkServiceWorker(): Promise<{ passed: boolean; message: string; details?: any }> {
+  static async checkServiceWorker(): Promise<{ passed: boolean; message: string; details?: ServiceWorkerDetails }> {
     if (!('serviceWorker' in navigator)) {
       return {
         passed: false,
@@ -241,7 +264,7 @@ export class PWADiagnostic {
   /**
    * Check icon availability
    */
-  static async checkIcons(manifest?: any): Promise<{ passed: boolean; message: string; details?: any }> {
+  static async checkIcons(manifest?: WebManifest): Promise<{ passed: boolean; message: string; details?: IconCheckDetails }> {
     if (!manifest || !manifest.icons) {
       return {
         passed: false,
@@ -282,7 +305,7 @@ export class PWADiagnostic {
   /**
    * Check display mode
    */
-  static checkDisplayMode(manifest?: any): { passed: boolean; message: string } {
+  static checkDisplayMode(manifest?: WebManifest): { passed: boolean; message: string } {
     if (!manifest) {
       return {
         passed: false,
@@ -309,13 +332,13 @@ export class PWADiagnostic {
   /**
    * Get install prompt availability
    */
-  static async checkInstallPrompt(): Promise<{ available: boolean; deferredPrompt?: any }> {
+  static async checkInstallPrompt(): Promise<{ available: boolean; deferredPrompt?: Event }> {
     if (!('BeforeInstallPromptEvent' in window)) {
       return { available: false };
     }
 
     // Check if there's a deferred prompt
-    let deferredPrompt: any = null;
+    let deferredPrompt: Event | null = null;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -323,7 +346,7 @@ export class PWADiagnostic {
 
     return {
       available: deferredPrompt !== null,
-      deferredPrompt,
+      deferredPrompt: deferredPrompt || undefined,
     };
   }
 
@@ -359,8 +382,14 @@ export class PWADiagnostic {
 }
 
 // Make available globally for debugging
+declare global {
+  interface Window {
+    PWADiagnostic: typeof PWADiagnostic;
+  }
+}
+
 if (typeof window !== 'undefined') {
-  (window as any).PWADiagnostic = PWADiagnostic;
+  window.PWADiagnostic = PWADiagnostic;
 }
 
 

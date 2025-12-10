@@ -42,7 +42,11 @@ const PWADiagnosticsPage: React.FC = () => {
 
   const handleInstall = async () => {
     if ('BeforeInstallPromptEvent' in window) {
-      const event = (window as any).beforeinstallprompt;
+      interface BeforeInstallPromptEvent extends Event {
+        prompt: () => Promise<void>;
+        userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+      }
+      const event = (window as { beforeinstallprompt?: BeforeInstallPromptEvent }).beforeinstallprompt;
       if (event) {
         await event.prompt();
         const { outcome } = await event.userChoice;
