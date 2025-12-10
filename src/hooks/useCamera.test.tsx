@@ -26,7 +26,7 @@ describe('useCamera', () => {
     global.navigator.mediaDevices = {
       getUserMedia: vi.fn(() => Promise.resolve(mockStream)),
       enumerateDevices: vi.fn(() => Promise.resolve([])),
-    } as any;
+    } as MediaDevices;
   });
 
   afterEach(() => {
@@ -90,7 +90,7 @@ describe('useCamera', () => {
 
   it('should handle unsupported camera', async () => {
     // Mock no camera support
-    global.navigator.mediaDevices = undefined as any;
+    global.navigator.mediaDevices = undefined as unknown as MediaDevices;
 
     const { result } = renderHook(() => useCamera(defaultConfig));
 
