@@ -12,7 +12,7 @@ An accessibility-first mobile assistant providing real-time obstacle detection, 
 - **Restrictions**: No night mode access
 
 ### Premium Tier ($28.99/month)
-- **Daily Limit**: 8 hours active guidance time  
+- **Daily Limit**: 4 hours active guidance time  
 - **Features**: All free features + night mode + enhanced low-light detection
 - **Bonus**: Free neck strap with breakaway safety clasp included
 
