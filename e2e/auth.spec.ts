@@ -1,6 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Authentication Flow', () => {
+/**
+ * Basic Authentication Flow Tests
+ * 
+ * These are smoke tests for the authentication flow.
+ * For comprehensive test coverage, see: e2e/auth-comprehensive.spec.ts
+ * 
+ * Related Documentation:
+ * - User Stories: docs/USER_STORIES_AUTH_FLOW.md
+ * - E2E Testing Guide: docs/AUTH_E2E_TESTING_GUIDE.md
+ */
+
+test.describe('Authentication Flow - Basic Smoke Tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
