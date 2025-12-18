@@ -81,8 +81,8 @@ self.addEventListener("push", (e) => {
     if (data.type === 'emergency' || data.type === 'safety-alert') {
       const options = {
         body: data.body || 'Emergency notification',
-        icon: '/logo.png',
-        badge: '/logo.png',
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
         tag: 'emergency',
         requireInteraction: true,
         actions: [

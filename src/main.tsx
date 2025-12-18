@@ -24,7 +24,11 @@ import { loadRuntimeConfig } from "./config/runtime";
 
 // Register SW in production only (using new v3 module)
 registerSW();
-console.log('[App] SW registration initialized, version:', SW_VERSION);
+// #region agent log
+if (import.meta.env.DEV) {
+  console.log('[App] SW registration initialized, version:', SW_VERSION);
+}
+// #endregion
 
 // Preload critical resources
 const preloadCritical = () => {
@@ -47,13 +51,19 @@ if (document.readyState === 'loading') {
 // Load runtime config, then boot app (block until i18n is ready)
 Promise.all([
   loadRuntimeConfig().catch(err => {
-    console.warn('[App] Runtime config load failed, using defaults:', err);
+    // #region agent log
+    if (import.meta.env.DEV) {
+      console.warn('[App] Runtime config load failed, using defaults:', err);
+    }
+    // #endregion
   }),
   i18nReady
 ]).finally(() => {
-  if (!i18n.isInitialized) {
+  // #region agent log
+  if (!i18n.isInitialized && import.meta.env.DEV) {
     console.warn('[App] i18n not initialized, forcing render anyway');
   }
+  // #endregion
   createRoot(document.getElementById("root")!).render(
     <ErrorBoundary>
       <App />
