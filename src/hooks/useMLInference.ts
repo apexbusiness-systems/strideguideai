@@ -52,7 +52,11 @@ export function useMLInference() {
     async function initModels() {
       try {
         setIsLoading(true);
-        console.log('[useMLInference] Loading PRODUCTION ML models...');
+        // #region agent log
+        if (import.meta.env.DEV) {
+          console.log('[useMLInference] Loading PRODUCTION ML models...');
+        }
+        // #endregion
 
         const canvas = document.createElement('canvas');
         canvas.width = 640;
@@ -60,7 +64,11 @@ export function useMLInference() {
         canvasRef.current = canvas;
 
         // Load DETR object detection model (REAL, not mock)
-        console.log('[useMLInference] Loading DETR ResNet-50...');
+        // #region agent log
+        if (import.meta.env.DEV) {
+          console.log('[useMLInference] Loading DETR ResNet-50...');
+        }
+        // #endregion
         let detector;
         try {
           detector = await pipeline('object-detection', 'Xenova/detr-resnet-50');
@@ -70,7 +78,11 @@ export function useMLInference() {
         }
 
         // Load feature extraction for embeddings (REAL, not mock)
-        console.log('[useMLInference] Loading feature extractor...');
+        // #region agent log
+        if (import.meta.env.DEV) {
+          console.log('[useMLInference] Loading feature extractor...');
+        }
+        // #endregion
         const embedder = await pipeline(
           'feature-extraction',
           'Xenova/all-MiniLM-L6-v2'
@@ -81,7 +93,11 @@ export function useMLInference() {
           embedderRef.current = embedder;
           setIsInitialized(true);
           setIsLoading(false);
-          console.log('[useMLInference] ✓ PRODUCTION models loaded');
+          // #region agent log
+          if (import.meta.env.DEV) {
+            console.log('[useMLInference] ✓ PRODUCTION models loaded');
+          }
+          // #endregion
         }
       } catch (err) {
         console.error('[useMLInference] CRITICAL: Model loading FAILED:', err);
@@ -122,7 +138,11 @@ export function useMLInference() {
       const inferenceTime = performance.now() - t0;
       tObserve('detect_ms', inferenceTime);
       
-      console.log(`[useMLInference] ✓ Detected ${detections.length} objects (${inferenceTime.toFixed(1)}ms)`);
+      // #region agent log
+      if (import.meta.env.DEV) {
+        console.log(`[useMLInference] ✓ Detected ${detections.length} objects (${inferenceTime.toFixed(1)}ms)`);
+      }
+      // #endregion
 
       const frameArea = imageData.width * imageData.height;
 
@@ -195,7 +215,11 @@ export function useMLInference() {
       const inferenceTime = performance.now() - t0;
       tObserve('embed_ms', inferenceTime);
       
-      console.log(`[useMLInference] ✓ Generated ${embedding.length}D embedding (${inferenceTime.toFixed(1)}ms)`);
+      // #region agent log
+      if (import.meta.env.DEV) {
+        console.log(`[useMLInference] ✓ Generated ${embedding.length}D embedding (${inferenceTime.toFixed(1)}ms)`);
+      }
+      // #endregion
 
       return embedding;
     } catch (err) {
@@ -255,7 +279,11 @@ export function useMLInference() {
       tObserve('search_ms', searchTime);
 
       if (best) {
-        console.log(`[useMLInference] ✓ Item found: ${best.className} (${(best.similarity*100).toFixed(1)}% match)`);
+        // #region agent log
+        if (import.meta.env.DEV) {
+          console.log(`[useMLInference] ✓ Item found: ${best.className} (${(best.similarity*100).toFixed(1)}% match)`);
+        }
+        // #endregion
       }
 
       // MEMORY FIX: Explicitly cleanup canvases to prevent memory leaks
