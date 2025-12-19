@@ -5,28 +5,59 @@
  * manifest validity, service worker status, and icon availability.
  */
 
+export interface ManifestIcon {
+  src: string;
+  sizes?: string;
+  type?: string;
+  purpose?: string;
+}
+
+export interface WebAppManifestMinimal {
+  name?: string;
+  short_name?: string;
+  start_url?: string;
+  display?: string;
+  icons?: ManifestIcon[];
+  [key: string]: unknown;
+}
+
+export interface ServiceWorkerDetails {
+  registered: boolean;
+  scope?: string;
+  state?: string;
+  scriptURL?: string;
+}
+
+export interface IconCheckDetails {
+  found: string[];
+  missing: string[];
+}
+
 export interface PWADiagnosticResult {
   isInstallable: boolean;
   criteria: {
     https: { passed: boolean; message: string };
-    manifest: { passed: boolean; message: string; details?: any };
-    serviceWorker: { passed: boolean; message: string; details?: any };
-    icons: { passed: boolean; message: string; details?: any };
+    manifest: { passed: boolean; message: string; details?: WebAppManifestMinimal };
+    serviceWorker: { passed: boolean; message: string; details?: ServiceWorkerDetails };
+    icons: { passed: boolean; message: string; details?: IconCheckDetails };
     display: { passed: boolean; message: string };
   };
-  manifest?: any;
-  serviceWorker?: {
-    registered: boolean;
-    scope?: string;
-    state?: string;
-    scriptURL?: string;
-  };
-  icons?: {
-    found: string[];
-    missing: string[];
-  };
+  manifest?: WebAppManifestMinimal;
+  serviceWorker?: ServiceWorkerDetails;
+  icons?: IconCheckDetails;
   errors: string[];
   warnings: string[];
+}
+
+export interface InstallPromptCheck {
+  available: boolean;
+  deferredPrompt?: BeforeInstallPromptEvent | null;
+}
+
+export interface BeforeInstallPromptEvent extends Event {
+  readonly platforms?: string[];
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: string }>;
 }
 
 export class PWADiagnostic {
@@ -116,7 +147,7 @@ export class PWADiagnostic {
   /**
    * Check manifest validity and required fields
    */
-  static async checkManifest(): Promise<{ passed: boolean; message: string; details?: any }> {
+  static async checkManifest(): Promise<{ passed: boolean; message: string; details?: WebAppManifestMinimal }> {
     const manifestLink = document.querySelector('link[rel="manifest"]');
     if (!manifestLink) {
       return {
@@ -142,7 +173,7 @@ export class PWADiagnostic {
         };
       }
 
-      const manifest = await response.json();
+      const manifest: WebAppManifestMinimal = await response.json();
 
       // Check required fields
       const requiredFields = ['name', 'short_name', 'start_url', 'display', 'icons'];
@@ -166,9 +197,9 @@ export class PWADiagnostic {
       }
 
       // Check for at least one icon with 192x192 or larger
-      const hasValidIcon = manifest.icons.some((icon: any) => {
+      const hasValidIcon = manifest.icons.some((icon: ManifestIcon) => {
         const sizes = icon.sizes?.split(' ') || [];
-        return sizes.some((size: string) => {
+        return sizes.some((size) => {
           const dimension = parseInt(size.split('x')[0], 10);
           return dimension >= 192;
         });
@@ -198,7 +229,7 @@ export class PWADiagnostic {
   /**
    * Check service worker registration
    */
-  static async checkServiceWorker(): Promise<{ passed: boolean; message: string; details?: any }> {
+  static async checkServiceWorker(): Promise<{ passed: boolean; message: string; details?: ServiceWorkerDetails }> {
     if (!('serviceWorker' in navigator)) {
       return {
         passed: false,
@@ -241,7 +272,7 @@ export class PWADiagnostic {
   /**
    * Check icon availability
    */
-  static async checkIcons(manifest?: any): Promise<{ passed: boolean; message: string; details?: any }> {
+  static async checkIcons(manifest?: WebAppManifestMinimal): Promise<{ passed: boolean; message: string; details?: IconCheckDetails }> {
     if (!manifest || !manifest.icons) {
       return {
         passed: false,
@@ -260,7 +291,7 @@ export class PWADiagnostic {
         } else {
           missing.push(icon.src);
         }
-      } catch (error) {
+      } catch {
         missing.push(icon.src);
       }
     }
@@ -282,7 +313,7 @@ export class PWADiagnostic {
   /**
    * Check display mode
    */
-  static checkDisplayMode(manifest?: any): { passed: boolean; message: string } {
+  static checkDisplayMode(manifest?: WebAppManifestMinimal): { passed: boolean; message: string } {
     if (!manifest) {
       return {
         passed: false,
@@ -309,16 +340,16 @@ export class PWADiagnostic {
   /**
    * Get install prompt availability
    */
-  static async checkInstallPrompt(): Promise<{ available: boolean; deferredPrompt?: any }> {
+  static async checkInstallPrompt(): Promise<InstallPromptCheck> {
     if (!('BeforeInstallPromptEvent' in window)) {
       return { available: false };
     }
 
     // Check if there's a deferred prompt
-    let deferredPrompt: any = null;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
+    let deferredPrompt: BeforeInstallPromptEvent | null = null;
+    window.addEventListener('beforeinstallprompt', (event: Event) => {
+      event.preventDefault();
+      deferredPrompt = event as BeforeInstallPromptEvent;
     });
 
     return {
@@ -359,9 +390,18 @@ export class PWADiagnostic {
 }
 
 // Make available globally for debugging
-if (typeof window !== 'undefined') {
-  (window as any).PWADiagnostic = PWADiagnostic;
+declare global {
+  interface Window {
+    PWADiagnostic?: typeof PWADiagnostic;
+    beforeinstallprompt?: BeforeInstallPromptEvent;
+  }
 }
+
+if (typeof window !== 'undefined') {
+  window.PWADiagnostic = PWADiagnostic;
+}
+
+
 
 
 

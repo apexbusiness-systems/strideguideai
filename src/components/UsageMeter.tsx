@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +7,7 @@ import { Clock, Crown, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 
-const UsageMeter = () => {
+const UsageMeter = memo(() => {
   const [usedMinutes, setUsedMinutes] = React.useState(45); // 45 minutes used today
   const [isPremium, setIsPremium] = React.useState(false);
   const { toast } = useToast();
@@ -128,6 +128,8 @@ const UsageMeter = () => {
       </CardContent>
     </Card>
   );
-};
+});
+
+UsageMeter.displayName = 'UsageMeter';
 
 export default UsageMeter;

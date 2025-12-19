@@ -13,6 +13,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
+type ManifestIcon = { sizes?: string; src: string };
+
 describe('PWA Validation', () => {
   const publicDir = join(process.cwd(), 'public');
   const srcDir = join(process.cwd(), 'src');
@@ -63,7 +65,7 @@ describe('PWA Validation', () => {
       expect(Array.isArray(manifest.icons)).toBe(true);
       expect(manifest.icons.length).toBeGreaterThan(0);
 
-      const hasValidIcon = manifest.icons.some((icon: any) => {
+      const hasValidIcon = manifest.icons.some((icon: ManifestIcon) => {
         const sizes = icon.sizes?.split(' ') || [];
         return sizes.some((size: string) => {
           const dimension = parseInt(size.split('x')[0], 10);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import strideGuideLogo from '@/assets/stride-guide-logo.png';
 
 interface LogoProps {
@@ -6,7 +6,7 @@ interface LogoProps {
   className?: string;
 }
 
-export const Logo: React.FC<LogoProps> = ({ variant = 'wordmark', className = '' }) => {
+export const Logo = memo<LogoProps>(({ variant = 'wordmark', className = '' }) => {
   return (
     <img 
       src={strideGuideLogo}
@@ -19,6 +19,8 @@ export const Logo: React.FC<LogoProps> = ({ variant = 'wordmark', className = ''
       }}
     />
   );
-};
+});
+
+Logo.displayName = 'Logo';
 
 export default Logo;

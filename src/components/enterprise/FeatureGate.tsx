@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, memo, useMemo } from "react";
 import { User } from "@supabase/supabase-js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,9 +28,9 @@ const featureConfig = {
     icon: Crown,
     requiredPlan: "Premium",
   },
-};
+} as const;
 
-export const FeatureGate = ({ 
+export const FeatureGate = memo(({ 
   feature, 
   user, 
   children, 
@@ -39,6 +39,13 @@ export const FeatureGate = ({
   onUpgrade 
 }: FeatureGateProps) => {
   const { hasFeatureAccess, subscription, isLoading } = useSubscription(user);
+
+  // Memoize config lookup to avoid recalculation
+  const config = useMemo(() => {
+    return featureConfig[feature as keyof typeof featureConfig];
+  }, [feature]);
+
+  const Icon = useMemo(() => config?.icon || Lock, [config?.icon]);
 
   if (isLoading) {
     return (
@@ -73,9 +80,6 @@ export const FeatureGate = ({
   if (fallback) {
     return <>{fallback}</>;
   }
-
-  const config = featureConfig[feature as keyof typeof featureConfig];
-  const Icon = config?.icon || Lock;
 
   return (
     <Card className="border-dashed bg-muted/20">
@@ -119,7 +123,9 @@ export const FeatureGate = ({
       )}
     </Card>
   );
-};
+});
+
+FeatureGate.displayName = 'FeatureGate';
 
 // Hook for programmatic feature checking
 export const useFeatureGate = (feature: string, user: User | null) => {

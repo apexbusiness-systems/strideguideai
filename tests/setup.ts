@@ -14,7 +14,7 @@ afterEach(() => {
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -27,23 +27,23 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
+global.IntersectionObserver = class {
   constructor() {}
-  disconnect() {}
-  observe() {}
-  takeRecords() {
+  disconnect(): void {}
+  observe(): void {}
+  takeRecords(): IntersectionObserverEntry[] {
     return [];
   }
-  unobserve() {}
-} as any;
+  unobserve(): void {}
+} as unknown as typeof globalThis.IntersectionObserver;
 
 // Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
+global.ResizeObserver = class {
   constructor() {}
-  disconnect() {}
-  observe() {}
-  unobserve() {}
-} as any;
+  disconnect(): void {}
+  observe(): void {}
+  unobserve(): void {}
+} as unknown as typeof globalThis.ResizeObserver;
 
 // Mock navigator.mediaDevices
 Object.defineProperty(navigator, 'mediaDevices', {
@@ -51,7 +51,7 @@ Object.defineProperty(navigator, 'mediaDevices', {
   value: {
     getUserMedia: vi.fn(() => Promise.resolve({} as MediaStream)),
     enumerateDevices: vi.fn(() => Promise.resolve([])),
-  },
+  } as unknown as MediaDevices,
 });
 
 // Mock Service Worker
@@ -61,13 +61,13 @@ Object.defineProperty(navigator, 'serviceWorker', {
     register: vi.fn(() => Promise.resolve({} as ServiceWorkerRegistration)),
     ready: Promise.resolve({} as ServiceWorkerRegistration),
     controller: null,
-  },
+  } as ServiceWorkerContainer,
 });
 
 // Suppress console errors in tests unless explicitly needed
 const originalError = console.error;
 beforeAll(() => {
-  console.error = (...args: any[]) => {
+  console.error = (...args: unknown[]) => {
     if (
       typeof args[0] === 'string' &&
       (args[0].includes('Warning: ReactDOM.render') ||

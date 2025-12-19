@@ -4,6 +4,7 @@
  * Shows current subscription state
  */
 
+import { memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Crown, AlertCircle, CheckCircle } from "lucide-react";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
@@ -15,7 +16,7 @@ interface SubscriptionBadgeProps {
   className?: string;
 }
 
-export function SubscriptionBadge({ user, className }: SubscriptionBadgeProps) {
+export const SubscriptionBadge = memo(function SubscriptionBadge({ user, className }: SubscriptionBadgeProps) {
   const { isWebhooksEnabled } = useFeatureFlags();
   const { subscription, isLoading } = useSubscription(user);
 
@@ -67,4 +68,4 @@ export function SubscriptionBadge({ user, className }: SubscriptionBadgeProps) {
       {subscription.plan_name} - {subscription.status}
     </Badge>
   );
-}
+});

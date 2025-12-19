@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ const planColors = {
   Enterprise: "bg-gold-50 border-gold-200",
 };
 
-export const PricingPlans = ({ currentPlan, onSelectPlan }: PricingPlansProps) => {
+export const PricingPlans = memo(({ currentPlan, onSelectPlan }: PricingPlansProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const { isPaymentsEnabled } = useFeatureFlags();
@@ -51,13 +51,14 @@ export const PricingPlans = ({ currentPlan, onSelectPlan }: PricingPlansProps) =
 
   useEffect(() => {
     loadPlans();
-  }, [loadPlans]);
+  }, [loadPlans]); // loadPlans is stable via useCallback
 
   const loadPlans = useCallback(async () => {
     try {
+      // Optimized: Select only needed fields to reduce payload size
       const { data, error } = await supabase
         .from("subscription_plans")
-        .select("*")
+        .select("id, name, price_monthly, price_yearly, stripe_price_id, stripe_yearly_price_id, features, max_api_calls, max_users, priority_support, white_label, is_active")
         .eq("is_active", true)
         .order("price_monthly");
 
@@ -250,4 +251,6 @@ export const PricingPlans = ({ currentPlan, onSelectPlan }: PricingPlansProps) =
       </div>
     </div>
   );
-};
+});
+
+PricingPlans.displayName = 'PricingPlans';

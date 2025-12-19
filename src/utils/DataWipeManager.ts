@@ -38,45 +38,46 @@ export class DataWipeManager {
 
       let totalCount = 0;
 
+      // Optimized: Only select id for count queries to reduce payload
       // Count learned items
       const { count: learnedItemsCount } = await supabase
         .from('learned_items')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id);
       totalCount += learnedItemsCount || 0;
 
       // Count user settings
       const { count: settingsCount } = await supabase
         .from('user_settings')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id);
       totalCount += settingsCount || 0;
 
       // Count journey traces
       const { count: journeyCount } = await supabase
         .from('journey_traces')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id);
       totalCount += journeyCount || 0;
 
       // Count performance metrics
       const { count: metricsCount } = await supabase
         .from('performance_metrics')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id);
       totalCount += metricsCount || 0;
 
       // Count emergency contacts
       const { count: contactsCount } = await supabase
         .from('emergency_contacts')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id);
       totalCount += contactsCount || 0;
 
       // Count emergency recordings
       const { count: recordingsCount } = await supabase
         .from('emergency_recordings')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id);
       totalCount += recordingsCount || 0;
 

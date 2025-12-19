@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -57,9 +57,20 @@ export const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Memoize expensive calculations
+  const conversionRate = useMemo(() => {
+    if (stats.totalUsers === 0) return '0.0';
+    return ((stats.activeSubscriptions / stats.totalUsers) * 100).toFixed(1);
+  }, [stats.activeSubscriptions, stats.totalUsers]);
+
+  const arpu = useMemo(() => {
+    if (stats.activeSubscriptions === 0) return '0.00';
+    return (stats.monthlyRecurringRevenue / stats.activeSubscriptions).toFixed(2);
+  }, [stats.monthlyRecurringRevenue, stats.activeSubscriptions]);
+
   useEffect(() => {
     loadDashboardData();
-  }, [loadDashboardData]);
+  }, [loadDashboardData]); // loadDashboardData is stable via useCallback
 
   const loadDashboardData = useCallback(async () => {
     setIsLoading(true);
@@ -81,18 +92,22 @@ export const AdminDashboard = () => {
   }, [toast]);
 
   const loadStats = async () => {
+    // Optimized: Select only needed fields to reduce payload size
     const { data: profiles } = await supabase
       .from("profiles")
       .select("id, created_at");
 
+    // Optimized: Select only needed fields instead of *
     const { data: activeSubscriptions } = await supabase
       .from("user_subscriptions")
       .select(`
-        *,
+        id,
+        status,
         subscription_plans!inner(price_monthly)
       `)
       .eq("status", "active");
 
+    // Optimized: Select only needed fields
     const { data: billingEvents } = await supabase
       .from("billing_events")
       .select("amount, created_at")
@@ -207,7 +222,8 @@ export const AdminDashboard = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  // Memoize status badge config to avoid recalculation
+  const getStatusBadge = useCallback((status: string) => {
     const statusConfig = {
       active: { variant: "default", label: "Active" },
       trialing: { variant: "secondary", label: "Trial" },
@@ -224,7 +240,7 @@ export const AdminDashboard = () => {
         {config.label}
       </Badge>
     );
-  };
+  }, []);
 
   if (isLoading) {
     return (
@@ -286,7 +302,7 @@ export const AdminDashboard = () => {
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeSubscriptions.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              {((stats.activeSubscriptions / stats.totalUsers) * 100).toFixed(1)}% conversion rate
+              {conversionRate}% conversion rate
             </p>
           </CardContent>
         </Card>
@@ -299,7 +315,7 @@ export const AdminDashboard = () => {
           <CardContent>
             <div className="text-2xl font-bold">${stats.monthlyRecurringRevenue.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              ${(stats.monthlyRecurringRevenue / stats.activeSubscriptions || 0).toFixed(2)} ARPU
+              ${arpu} ARPU
             </p>
           </CardContent>
         </Card>

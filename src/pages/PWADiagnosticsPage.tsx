@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, XCircle, AlertCircle, RefreshCw, Download } from 'lucide-react';
-import { PWADiagnostic, PWADiagnosticResult } from '@/utils/PWADiagnostic';
+import { PWADiagnostic, PWADiagnosticResult, type BeforeInstallPromptEvent } from '@/utils/PWADiagnostic';
 
 const PWADiagnosticsPage: React.FC = () => {
   const [diagnosticResult, setDiagnosticResult] = useState<PWADiagnosticResult | null>(null);
@@ -41,13 +41,11 @@ const PWADiagnosticsPage: React.FC = () => {
   };
 
   const handleInstall = async () => {
-    if ('BeforeInstallPromptEvent' in window) {
-      const event = (window as any).beforeinstallprompt;
-      if (event) {
-        await event.prompt();
-        const { outcome } = await event.userChoice;
-        console.log('Install outcome:', outcome);
-      }
+    const event = window.beforeinstallprompt as BeforeInstallPromptEvent | undefined;
+    if (event) {
+      await event.prompt();
+      const { outcome } = await event.userChoice;
+      console.log('Install outcome:', outcome);
     }
   };
 
@@ -323,6 +321,8 @@ const PWADiagnosticsPage: React.FC = () => {
 };
 
 export default PWADiagnosticsPage;
+
+
 
 
 
