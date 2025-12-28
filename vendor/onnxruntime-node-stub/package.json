@@ -1,0 +1,7 @@
+{
+  "name": "onnxruntime-node",
+  "version": "1.21.0",
+  "description": "Stub replacement for onnxruntime-node to avoid native binary download in web-only builds.",
+  "main": "index.js",
+  "private": true
+}
