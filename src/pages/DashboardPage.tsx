@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { User } from "@supabase/supabase-js";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -25,11 +25,7 @@ export default function DashboardPage({ user, onSignOut }: DashboardPageProps) {
 
   const flags = useFeatureFlags();
 
-  useEffect(() => {
-    checkUserRole();
-  }, [user, flags.enableEdgeCheck]);
-
-  const checkUserRole = async () => {
+  const checkUserRole = useCallback(async () => {
     try {
       // Bypass edge calls if disabled
       if (!flags.enableEdgeCheck) {
@@ -62,7 +58,11 @@ export default function DashboardPage({ user, onSignOut }: DashboardPageProps) {
       console.error('Admin check failed:', error);
       setUserRole('user');
     }
-  };
+  }, [flags.enableEdgeCheck]);
+
+  useEffect(() => {
+    checkUserRole();
+  }, [checkUserRole]);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);

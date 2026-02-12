@@ -1,4 +1,4 @@
-import { CSSProperties, useEffect } from "react";
+import { CSSProperties } from "react";
 import { Footer } from "@/components/layout/Footer";
 import { TrustBadgesSlim } from "@/components/sections/TrustBadgesSlim";        
 import { BenefitsGrid } from "@/components/sections/BenefitsGrid";
@@ -9,26 +9,13 @@ import { NoAIHypeFooter } from "@/components/sections/NoAIHypeFooter";
 // import { useAnalytics } from "@/hooks/useAnalytics";
 import { SEOHead } from "@/components/SEOHead";
 // import { QuickActionsCard } from "@/components/dashboard/QuickActionsCard";     
-import { errorReporter } from "@/lib/errorReporter";
-import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { Globe } from "lucide-react";
 
 const Index = () => {
   // const { trackPageView } = useAnalytics();
-  const { i18n } = useTranslation();
 
   // useEffect(() => {
   //   trackPageView("home");
   // }, [trackPageView]);
-
-
-  // Language toggle handler - works on all platforms
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'en' ? 'fr' : 'en';
-    i18n.changeLanguage(newLang);
-    document.documentElement.lang = newLang;
-  };
 
   const wallpaperStyle = {
     backgroundColor: "hsl(0, 0%, 97%)",

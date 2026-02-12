@@ -19,9 +19,8 @@ interface SubscriptionManagerProps {
 export const SubscriptionManager = ({ user }: SubscriptionManagerProps) => {
   const { toast } = useToast();
   const { isPaymentsEnabled, enableEdgeCheck } = useFeatureFlags() as { isPaymentsEnabled: boolean; enableEdgeCheck: boolean };
-  const { subscription, isLoading, refreshSubscription } = useSubscription(user);
+  const { subscription, isLoading } = useSubscription(user);
   const [showPricing, setShowPricing] = useState(false);
-  const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
   const [usageData, setUsageData] = useState({ current: 0, limit: 0 });
 
   useEffect(() => {
@@ -66,8 +65,6 @@ export const SubscriptionManager = ({ user }: SubscriptionManagerProps) => {
       return;
     }
 
-    setIsCreatingCheckout(true);
-
     try {
       await telemetry.trackWithLatency('checkout_open', async () => {
         if (!enableEdgeCheck) {
@@ -101,8 +98,6 @@ export const SubscriptionManager = ({ user }: SubscriptionManagerProps) => {
         description: enableEdgeCheck ? "Failed to create checkout session. Please try again." : "Disabled in crisis mode.",
         variant: "destructive",
       });
-    } finally {
-      setIsCreatingCheckout(false);
     }
   };
 

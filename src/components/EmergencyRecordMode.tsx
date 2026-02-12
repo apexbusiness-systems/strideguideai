@@ -8,14 +8,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { 
   Video, 
-  VideoOff, 
   Mic, 
   MicOff, 
   Shield, 
   Clock, 
-  HardDrive,
   Eye,
-  AlertTriangle,
   Play,
   Square,
   Volume2
@@ -34,7 +31,6 @@ const EmergencyRecordMode = () => {
     storageUsed,
     isInitialized,
     storagePercentage,
-    canRecord,
     needsConsent,
     hasPreEventBuffer,
     startRecording,
@@ -42,7 +38,6 @@ const EmergencyRecordMode = () => {
   } = useEmergencyRecording();
 
   const [showConsentModal, setShowConsentModal] = useState(false);
-  const [consentGiven, setConsentGiven] = useState(false);
   const { toast } = useToast();
 
   // Handle consent for all-party states
@@ -56,7 +51,6 @@ const EmergencyRecordMode = () => {
 
   const handleConsentApprove = () => {
     PolicyManager.giveConsent();
-    setConsentGiven(true);
     setShowConsentModal(false);
     startRecording('manual');
   };

@@ -242,8 +242,6 @@ export class DataWipeManager {
       errors.push(`Remote delete error: ${error instanceof Error ? error.message : 'Unknown'}`);
     }
 
-    const totalDeleted = Object.values(deleted).reduce((sum, count) => sum + count, 0);
-    
     return {
       success: errors.length === 0,
       deleted,

@@ -7,7 +7,6 @@ import { BatteryGuard } from './BatteryGuard';
 import { HealthManager } from './HealthManager';
 import { SOSGuard } from './SOSGuard';
 import { WakeLockManager } from './WakeLockManager';
-import { HapticManager } from './HapticManager';
 
 export interface TestResult {
   component: string;
@@ -25,7 +24,6 @@ export class SystemReliabilityTester {
   // Test Audio System Reliability
   static async testAudioReliability(): Promise<TestResult[]> {
     const results: TestResult[] = [];
-    const startTime = Date.now();
 
     console.group('🔊 Testing Audio System Reliability');
 

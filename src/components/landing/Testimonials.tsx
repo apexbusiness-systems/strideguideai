@@ -1,12 +1,9 @@
 // @stride/testimonials v1
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Quote } from 'lucide-react';
 
 export const Testimonials: React.FC = () => {
-  const { t } = useTranslation();
-
   const testimonials = [
     {
       quote: 'StrideGuide gave me my independence back. I can walk to the store without fear, even when my phone has no signal.',
