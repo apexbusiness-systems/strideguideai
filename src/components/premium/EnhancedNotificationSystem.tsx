@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Toast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -13,8 +12,6 @@ import {
   Pause,
   Play
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-
 interface EnhancedNotification {
   id: string;
   type: 'critical' | 'warning' | 'info' | 'success';
@@ -37,7 +34,6 @@ interface NotificationSystemProps {
   notifications: EnhancedNotification[];
   onNotificationDismiss: (id: string) => void;
   onNotificationAcknowledge: (id: string) => void;
-  onSystemMute: () => void;
   onSystemPause: () => void;
   isMuted: boolean;
   isPaused: boolean;
@@ -49,13 +45,11 @@ export const EnhancedNotificationSystem: React.FC<NotificationSystemProps> = ({
   notifications,
   onNotificationDismiss,
   onNotificationAcknowledge,
-  onSystemMute,
   onSystemPause,
   isMuted,
   isPaused,
   isPremium,
 }) => {
-  const { toast } = useToast();
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [groupedNotifications, setGroupedNotifications] = useState<{
     critical: EnhancedNotification[];

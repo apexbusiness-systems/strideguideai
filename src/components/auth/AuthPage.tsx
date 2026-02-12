@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { supabase, authRedirectTo } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,7 +33,6 @@ interface AuthPageProps {
 }
 
 export const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
-  const { t } = useTranslation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -196,7 +194,7 @@ export const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
         title: "Password reset sent!",
         description: "Check your email for password reset instructions.",
       });
-    } catch (error) {
+    } catch {
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
