@@ -182,7 +182,7 @@ class SOSGuardClass {
       setTimeout(() => {
         try {
           recognition.stop();
-        } catch (error) {
+        } catch {
           // Recognition may already be stopped
         }
       }, this.cancelWindow);

@@ -8,7 +8,6 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { BatteryGuard } from '@/utils/BatteryGuard';
 import { HealthManager } from '@/utils/HealthManager';
-import { useJourneyTrace } from '@/hooks/useJourneyTrace';
 import { DataWipeManager } from '@/utils/DataWipeManager';
 import { telemetry } from '@/utils/Telemetry';
 import { AdvancedActions } from '@/components/settings/AdvancedActions';
@@ -40,7 +39,7 @@ interface SettingsDashboardProps {
   replayTutorial?: () => void;
 }
 
-const SettingsDashboard: React.FC<SettingsDashboardProps> = ({ onBack, replayTutorial }) => {
+const SettingsDashboard: React.FC<SettingsDashboardProps> = () => {
   const [lowEndMode, setLowEndMode] = React.useState(false);
   const [winterMode, setWinterMode] = React.useState(false);
   const [cloudDescribe, setCloudDescribe] = React.useState(false);
@@ -55,8 +54,6 @@ const SettingsDashboard: React.FC<SettingsDashboardProps> = ({ onBack, replayTut
   const [isClearing, setIsClearing] = React.useState(false);
   const { toast } = useToast();
   
-  const journeyTrace = useJourneyTrace('settings_save', { component: 'SettingsDashboard' });
-
   // Update health status and battery info
   React.useEffect(() => {
     const unsubscribeHealth = HealthManager.onHealthChange(setHealthStatus);

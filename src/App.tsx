@@ -61,7 +61,6 @@ const App = () => {
   useI18nGuard();
   
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<unknown>(null);
   const [isLoading, setIsLoading] = useState(true);
   const effectiveUser = (DEV_CONFIG.BYPASS_AUTH ? (DEV_CONFIG.MOCK_USER as unknown as User) : null) || user;
 
@@ -81,7 +80,6 @@ const App = () => {
       async (event, session) => {
         // On initial session load, the listener fires first - handle it silently
         if (event === 'INITIAL_SESSION') {
-          setSession(session);
           setUser(session?.user ?? null);
           setIsLoading(false);
           isInitialized = true;
@@ -91,19 +89,15 @@ const App = () => {
 
         // Handle token refresh events silently to prevent disconnection errors
         if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
-          setSession(session);
           setUser(session?.user ?? null);
           if (!isInitialized) setIsLoading(false);
         } else if (event === 'SIGNED_OUT') {
-          setSession(null);
           setUser(null);
           setIsLoading(false);
         } else if (event === 'USER_UPDATED') {
-          setSession(session);
           setUser(session?.user ?? null);
         } else {
           // For other events, update state normally but don't change loading if already initialized
-          setSession(session);
           setUser(session?.user ?? null);
           if (!isInitialized) setIsLoading(false);
         }
@@ -115,7 +109,6 @@ const App = () => {
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       // Only update if listener hasn't already initialized us
       if (!sessionCheckCompleted) {
-        setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
         isInitialized = true;
@@ -123,7 +116,6 @@ const App = () => {
       }
       // If there's an error getting session, still mark as initialized to prevent hanging
       if (error && !isInitialized) {
-        setSession(null);
         setUser(null);
         setIsLoading(false);
         isInitialized = true;
@@ -132,7 +124,6 @@ const App = () => {
     }).catch(() => {
       // If getSession fails, still mark as initialized to prevent hanging
       if (!isInitialized) {
-        setSession(null);
         setUser(null);
         setIsLoading(false);
         isInitialized = true;
@@ -149,7 +140,6 @@ const App = () => {
 
   const handleSignOut = () => {
     setUser(null);
-    setSession(null);
   };
 
   if (isLoading) {

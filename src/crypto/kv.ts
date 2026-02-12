@@ -294,8 +294,8 @@ class EncryptedKVClass {
       const dataStore = transaction.objectStore(this.STORE_NAME);
       const keyStore = transaction.objectStore(this.KEY_STORE_NAME);
       
-      const clearData = dataStore.clear();
-      const clearKeys = keyStore.clear();
+      dataStore.clear();
+      keyStore.clear();
       
       transaction.onerror = () => reject(transaction.error);
       transaction.oncomplete = () => {

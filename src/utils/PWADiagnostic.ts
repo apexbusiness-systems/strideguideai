@@ -283,7 +283,7 @@ export class PWADiagnostic {
         } else {
           missing.push(icon.src);
         }
-      } catch (error) {
+      } catch {
         missing.push(icon.src);
       }
     }
