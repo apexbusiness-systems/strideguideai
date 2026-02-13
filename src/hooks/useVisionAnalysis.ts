@@ -15,6 +15,8 @@ export const useVisionAnalysis = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [lastResult, setLastResult] = useState<VisionAnalysisResult | null>(null);
   const isCancelledRef = useRef(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const resizedCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const analyzeFrame = useCallback(async (
     videoElement: HTMLVideoElement | null,
@@ -33,9 +35,18 @@ export const useVisionAnalysis = () => {
 
     try {
       // Capture frame from video
-      const canvas = document.createElement('canvas');
-      canvas.width = videoElement.videoWidth;
-      canvas.height = videoElement.videoHeight;
+      if (!canvasRef.current) {
+        canvasRef.current = document.createElement('canvas');
+      }
+      const canvas = canvasRef.current;
+
+      // Update dimensions if they changed
+      if (canvas.width !== videoElement.videoWidth) {
+        canvas.width = videoElement.videoWidth;
+      }
+      if (canvas.height !== videoElement.videoHeight) {
+        canvas.height = videoElement.videoHeight;
+      }
       
       const ctx = canvas.getContext('2d');
       if (!ctx) {
@@ -46,21 +57,33 @@ export const useVisionAnalysis = () => {
       
       // Resize for efficiency (max 800px width)
       const maxWidth = 800;
+      let activeCanvas = canvas;
+
       if (canvas.width > maxWidth) {
         const ratio = maxWidth / canvas.width;
-        const resizedCanvas = document.createElement('canvas');
-        resizedCanvas.width = maxWidth;
-        resizedCanvas.height = canvas.height * ratio;
+        const targetWidth = maxWidth;
+        const targetHeight = canvas.height * ratio;
+
+        if (!resizedCanvasRef.current) {
+          resizedCanvasRef.current = document.createElement('canvas');
+        }
+        const resizedCanvas = resizedCanvasRef.current;
+
+        if (resizedCanvas.width !== targetWidth) {
+          resizedCanvas.width = targetWidth;
+        }
+        if (resizedCanvas.height !== targetHeight) {
+          resizedCanvas.height = targetHeight;
+        }
+
         const resizedCtx = resizedCanvas.getContext('2d');
         if (resizedCtx) {
-          resizedCtx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
-          canvas.width = resizedCanvas.width;
-          canvas.height = resizedCanvas.height;
-          ctx.drawImage(resizedCanvas, 0, 0);
+          resizedCtx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+          activeCanvas = resizedCanvas;
         }
       }
 
-      const imageData = canvas.toDataURL('image/jpeg', 0.8);
+      const imageData = activeCanvas.toDataURL('image/jpeg', 0.8);
 
       // Check if cancelled before making request
       if (isCancelledRef.current) {
