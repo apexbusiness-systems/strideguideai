@@ -74,6 +74,7 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "stride-orange": "hsl(var(--stride-orange))",
       },
       borderRadius: {
         lg: "var(--radius)",
