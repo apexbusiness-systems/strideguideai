@@ -24,10 +24,10 @@ export const Footer: React.FC = () => {
             </div>
             <address className="not-italic text-sm">
               <strong>StrideGuide</strong> • Built for accessibility • Made in Canada<br />                                                             
-              <a href="mailto:info@strideguide.cam" className="hover:text-foreground transition-colors" style={{ color: '#FF6B35' }}>info@strideguide.cam</a>                                                                             
+              <a href="mailto:info@strideguide.cam" className="text-stride-orange hover:text-foreground transition-colors">info@strideguide.cam</a>
             </address>
             <div className="flex items-center gap-3 text-sm text-muted-foreground mt-2">                                                                        
-              <span>© 2025 <span style={{ color: '#FF6B35' }}>StrideGuide</span>. Walk with confidence.</span>                                      
+              <span>© 2025 <span className="text-stride-orange">StrideGuide</span>. Walk with confidence.</span>
             </div>
           </div>
 

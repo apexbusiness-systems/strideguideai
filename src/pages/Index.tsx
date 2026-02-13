@@ -101,7 +101,7 @@ const Index = () => {
               <HowItWorks />
               <div className="container mx-auto px-4 py-12 relative">
                 {/* Mask overlay for Quick Actions section - 65% opacity */}
-                <div className="hero-gradient-overlay absolute inset-0 pointer-events-none" style={{ background: 'rgba(255, 107, 53, 0.65)' }} aria-hidden="true" />
+                <div className="hero-gradient-overlay absolute inset-0 pointer-events-none bg-stride-orange/[.65]" aria-hidden="true" />
                 <div className="hero-vignette absolute inset-0 pointer-events-none" aria-hidden="true" />
                 <div className="mx-auto max-w-4xl space-y-6 text-center relative z-10">       
                   <h2 className="text-2xl font-semibold tracking-tight text-foreground">                                                                        
