@@ -41,11 +41,11 @@ export const learnedItemSchema = z.object({
   name: z.string()
     .trim()
     .min(1, "Item name is required")
-    .max(100, "Item name too long"),
+    .max(255, "Item name too long (max 255 characters)"),
   
   description: z.string()
     .trim()
-    .max(500, "Description too long")
+    .max(1000, "Description too long (max 1000 characters)")
     .optional(),
   
   confidence_threshold: z.number()
