@@ -79,12 +79,13 @@ export async function checkRateLimit(
 
     if (error) {
       console.error('[RateLimit] Database error:', error);
-      // On error, allow request (fail open) but log it
+      // On error, deny request (fail closed) for security
       return {
-        allowed: true,
-        currentCount: 0,
+        allowed: false,
+        currentCount: maxAttempts,
         maxAttempts,
-        remaining: maxAttempts,
+        remaining: 0,
+        retryAfterSeconds: 60,
       };
     }
 
@@ -98,12 +99,13 @@ export async function checkRateLimit(
     };
   } catch (err) {
     console.error('[RateLimit] Unexpected error:', err);
-    // On error, allow request (fail open)
+    // On error, deny request (fail closed)
     return {
-      allowed: true,
-      currentCount: 0,
+      allowed: false,
+      currentCount: maxAttempts,
       maxAttempts,
-      remaining: maxAttempts,
+      remaining: 0,
+      retryAfterSeconds: 60,
     };
   }
 }
