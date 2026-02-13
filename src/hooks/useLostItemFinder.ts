@@ -4,6 +4,7 @@ import { VisualSignature, createSignature, estimateProximity } from '@/utils/Vis
 export interface LearnedItem {
   id: string;
   name: string;
+  description?: string;
   signatures: VisualSignature[];
   createdAt: Date;
   photoCount: number;
@@ -33,6 +34,7 @@ export interface FinderSettings {
 
 // Encrypted local storage for learned items using AES-GCM
 import { EncryptedKVClass } from '@/crypto/kv';
+import { learnedItemSchema } from '@/utils/ValidationSchemas';
 
 class EncryptedStorage {
   private static kv = new EncryptedKVClass();
@@ -71,6 +73,7 @@ class EncryptedStorage {
 export const useLostItemFinder = () => {
   const [learnedItems, setLearnedItems] = useState<LearnedItem[]>([]);
   const [isTeaching, setIsTeaching] = useState(false);
+  const [teachingInfo, setTeachingInfo] = useState<{ name: string; description?: string } | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [teachProgress, setTeachProgress] = useState(0);
   const [currentSearchResult, setCurrentSearchResult] = useState<SearchResult | null>(null);
@@ -99,7 +102,11 @@ export const useLostItemFinder = () => {
   }, []);
 
   // Start teaching a new item
-  const startTeaching = useCallback(async () => {
+  const startTeaching = useCallback(async (name: string, description?: string) => {
+    // Validate inputs early
+    learnedItemSchema.parse({ name, description });
+
+    setTeachingInfo({ name, description });
     setIsTeaching(true);
     setTeachProgress(0);
     capturedSignatures.current = [];
@@ -123,7 +130,7 @@ export const useLostItemFinder = () => {
 
   // Capture photo during teaching
   const captureTeachingPhoto = useCallback(async (canvas: HTMLCanvasElement): Promise<boolean> => {
-    if (!isTeaching) return false;
+    if (!isTeaching || !teachingInfo) return false;
     
     try {
       const ctx = canvas.getContext('2d');
@@ -133,20 +140,29 @@ export const useLostItemFinder = () => {
       const signature = createSignature(imageData);
       
       capturedSignatures.current.push(signature);
-      setTeachProgress((capturedSignatures.current.length / 12) * 100);
+      const progress = (capturedSignatures.current.length / 12) * 100;
+      setTeachProgress(progress);
+
+      // Automatically complete when enough photos are taken
+      if (capturedSignatures.current.length >= 12) {
+        await completeTeaching();
+      }
       
       return true;
     } catch (error) {
       console.error('Failed to capture teaching photo:', error);
       return false;
     }
-  }, [isTeaching]);
+  }, [isTeaching, teachingInfo, completeTeaching]);
 
   // Complete teaching process
-  const completeTeaching = useCallback(async (itemName: string): Promise<void> => {
+  const completeTeaching = useCallback(async (): Promise<void> => {
+    if (!teachingInfo) return;
+
     const newItem: LearnedItem = {
       id: Date.now().toString(),
-      name: itemName,
+      name: teachingInfo.name,
+      description: teachingInfo.description,
       signatures: capturedSignatures.current,
       createdAt: new Date(),
       photoCount: capturedSignatures.current.length,
@@ -157,6 +173,7 @@ export const useLostItemFinder = () => {
     await saveLearnedItems(updatedItems);
     
     setIsTeaching(false);
+    setTeachingInfo(null);
     setTeachProgress(0);
     capturedSignatures.current = [];
     
@@ -164,7 +181,7 @@ export const useLostItemFinder = () => {
       videoStream.current.getTracks().forEach(track => track.stop());
       videoStream.current = null;
     }
-  }, [learnedItems, saveLearnedItems]);
+  }, [learnedItems, saveLearnedItems, teachingInfo]);
 
   // Start searching for an item
   const startSearching = useCallback(async (itemId: string): Promise<boolean> => {

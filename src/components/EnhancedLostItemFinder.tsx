@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Search, 
   BookOpen, 
@@ -19,6 +20,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useLostItemFinder } from '@/hooks/useLostItemFinder';
 import { useMLInference } from '@/hooks/useMLInference';
+import { learnedItemSchema } from '@/utils/ValidationSchemas';
 import { useAudioGuidance } from '@/hooks/useAudioGuidance';
 import { CameraView } from './CameraView';
 
@@ -38,6 +40,7 @@ export const EnhancedLostItemFinder: React.FC<Props> = ({
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
   const [currentItem, setCurrentItem] = useState<string>('');
+  const [itemDescription, setItemDescription] = useState<string>('');
   
   const {
     learnedItems,
@@ -81,17 +84,23 @@ export const EnhancedLostItemFinder: React.FC<Props> = ({
       return;
     }
 
-    if (!currentItem.trim()) {
+    try {
+      learnedItemSchema.parse({
+        name: currentItem,
+        description: itemDescription
+      });
+    } catch (error: any) {
       toast({
-        title: 'Item Name Required',
-        description: 'Please enter a name for the item you want to teach.',
+        title: 'Validation Error',
+        description: error.errors?.[0]?.message || 'Please check your inputs',
         variant: 'destructive'
       });
       return;
     }
 
-    startTeaching(currentItem);
+    startTeaching(currentItem, itemDescription);
     setCurrentItem('');
+    setItemDescription('');
   };
 
   const handleNightModeToggle = () => {
@@ -202,23 +211,31 @@ export const EnhancedLostItemFinder: React.FC<Props> = ({
           {/* Teaching Interface */}
           {mode === 'idle' && (
             <div className="space-y-4">
-              <div className="flex gap-2">
+              <div className="space-y-3">
                 <input
                   type="text"
                   value={currentItem}
                   onChange={(e) => setCurrentItem(e.target.value)}
                   placeholder={currentLang === 'fr' ? 'Nom de l\'objet...' : 'Item name...'}
-                  className="flex-1 px-3 py-2 border rounded-md"
+                  className="w-full px-3 py-2 border rounded-md"
+                  maxLength={255}
                   onKeyPress={(e) => e.key === 'Enter' && handleStartTeaching()}
+                />
+                <Textarea
+                  value={itemDescription}
+                  onChange={(e) => setItemDescription(e.target.value)}
+                  placeholder={currentLang === 'fr' ? 'Description (facultatif)...' : 'Description (optional)...'}
+                  className="w-full"
+                  maxLength={1000}
                 />
                 <Button 
                   onClick={handleStartTeaching}
                   disabled={!currentItem.trim()}
                   size="lg"
-                  className="min-w-[120px]"
+                  className="w-full h-12"
                 >
                   <BookOpen className="h-4 w-4 mr-2" />
-                  {currentLang === 'fr' ? 'Enseigner' : 'Teach'}
+                  {currentLang === 'fr' ? 'Commencer l\'enseignement' : 'Start Teaching'}
                   {!isPremium && learnedItems.length >= 1 && (
                     <Lock className="h-4 w-4 ml-2" />
                   )}
