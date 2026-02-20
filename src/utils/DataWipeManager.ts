@@ -27,6 +27,15 @@ export interface WipeResult {
 
 export class DataWipeManager {
   private static readonly TIMEOUT_MS = 10000; // 10s per operation
+
+  private static readonly REMOTE_TABLES = [
+    { id: 'learnedItems', name: 'learned_items', label: 'Learned items' },
+    { id: 'userSettings', name: 'user_settings', label: 'Settings' },
+    { id: 'journeyTraces', name: 'journey_traces', label: 'Journey traces' },
+    { id: 'performanceMetrics', name: 'performance_metrics', label: 'Metrics' },
+    { id: 'emergencyContacts', name: 'emergency_contacts', label: 'Emergency contacts' },
+    { id: 'emergencyRecordings', name: 'emergency_recordings', label: 'Emergency recordings' }
+  ] as const;
   
   /**
    * Get count of remote rows that will be deleted for the current user
@@ -38,47 +47,17 @@ export class DataWipeManager {
 
       let totalCount = 0;
 
-      // Count learned items
-      const { count: learnedItemsCount } = await supabase
-        .from('learned_items')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-      totalCount += learnedItemsCount || 0;
+      // Parallelize row counting for all tables
+      const results = await Promise.all(
+        this.REMOTE_TABLES.map(table =>
+          supabase
+            .from(table.name)
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+        )
+      );
 
-      // Count user settings
-      const { count: settingsCount } = await supabase
-        .from('user_settings')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-      totalCount += settingsCount || 0;
-
-      // Count journey traces
-      const { count: journeyCount } = await supabase
-        .from('journey_traces')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-      totalCount += journeyCount || 0;
-
-      // Count performance metrics
-      const { count: metricsCount } = await supabase
-        .from('performance_metrics')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-      totalCount += metricsCount || 0;
-
-      // Count emergency contacts
-      const { count: contactsCount } = await supabase
-        .from('emergency_contacts')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-      totalCount += contactsCount || 0;
-
-      // Count emergency recordings
-      const { count: recordingsCount } = await supabase
-        .from('emergency_recordings')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-      totalCount += recordingsCount || 0;
+      totalCount = results.reduce((sum, { count }) => sum + (count || 0), 0);
 
       return totalCount;
     } catch (error) {
@@ -144,12 +123,11 @@ export class DataWipeManager {
 
       const cacheNames = await caches.keys();
       
-      for (const cacheName of cacheNames) {
-        // Keep service worker precache and runtime caches
-        if (!cacheName.includes('workbox') && !cacheName.includes('precache')) {
-          await caches.delete(cacheName);
-        }
-      }
+      const deletePromises = cacheNames
+        .filter(cacheName => !cacheName.includes('workbox') && !cacheName.includes('precache'))
+        .map(cacheName => caches.delete(cacheName));
+
+      await Promise.all(deletePromises);
       
       return true;
     } catch (error) {
@@ -181,62 +159,28 @@ export class DataWipeManager {
       emergencyContacts: 0,
       emergencyRecordings: 0,
     };
+
     const errors: string[] = [];
 
     try {
-      // Delete learned items
-      const learnedResult = await supabase
-        .from('learned_items')
-        .delete({ count: 'exact' })
-        .eq('user_id', userId);
-      
-      if (learnedResult.error) errors.push(`Learned items: ${learnedResult.error.message}`);
-      else deleted.learnedItems = learnedResult.count || 0;
+      // Parallelize deletion across all tables
+      const results = await Promise.all(
+        this.REMOTE_TABLES.map(config =>
+          supabase
+            .from(config.name)
+            .delete({ count: 'exact' })
+            .eq('user_id', userId)
+            .then(res => ({ ...res, config }))
+        )
+      );
 
-      // Delete user settings
-      const settingsResult = await supabase
-        .from('user_settings')
-        .delete({ count: 'exact' })
-        .eq('user_id', userId);
-      
-      if (settingsResult.error) errors.push(`Settings: ${settingsResult.error.message}`);
-      else deleted.userSettings = settingsResult.count || 0;
-
-      // Delete journey traces
-      const journeyResult = await supabase
-        .from('journey_traces')
-        .delete({ count: 'exact' })
-        .eq('user_id', userId);
-      
-      if (journeyResult.error) errors.push(`Journey traces: ${journeyResult.error.message}`);
-      else deleted.journeyTraces = journeyResult.count || 0;
-
-      // Delete performance metrics
-      const metricsResult = await supabase
-        .from('performance_metrics')
-        .delete({ count: 'exact' })
-        .eq('user_id', userId);
-      
-      if (metricsResult.error) errors.push(`Metrics: ${metricsResult.error.message}`);
-      else deleted.performanceMetrics = metricsResult.count || 0;
-
-      // Delete emergency contacts
-      const contactsResult = await supabase
-        .from('emergency_contacts')
-        .delete({ count: 'exact' })
-        .eq('user_id', userId);
-      
-      if (contactsResult.error) errors.push(`Emergency contacts: ${contactsResult.error.message}`);
-      else deleted.emergencyContacts = contactsResult.count || 0;
-
-      // Delete emergency recordings
-      const recordingsResult = await supabase
-        .from('emergency_recordings')
-        .delete({ count: 'exact' })
-        .eq('user_id', userId);
-      
-      if (recordingsResult.error) errors.push(`Emergency recordings: ${recordingsResult.error.message}`);
-      else deleted.emergencyRecordings = recordingsResult.count || 0;
+      results.forEach(({ error, count, config }) => {
+        if (error) {
+          errors.push(`${config.label}: ${error.message}`);
+        } else {
+          deleted[config.id] = count || 0;
+        }
+      });
 
     } catch (error) {
       errors.push(`Remote delete error: ${error instanceof Error ? error.message : 'Unknown'}`);
@@ -280,20 +224,22 @@ export class DataWipeManager {
         return result;
       }
 
-      // Clear local storage
-      result.details.localStorage = await this.clearLocalStorage();
-      if (result.details.localStorage) result.localCleared++;
+      // Parallelize local and remote wipes for maximum efficiency
+      const [localStoreSuccess, indexedDbSuccess, cacheSuccess, remoteResult] = await Promise.all([
+        this.clearLocalStorage(),
+        this.clearIndexedDB(),
+        this.clearCacheStorage(),
+        this.deleteRemoteData(user.id)
+      ]);
 
-      // Clear IndexedDB
-      result.details.indexedDB = await this.clearIndexedDB();
-      if (result.details.indexedDB) result.localCleared++;
+      result.details.localStorage = localStoreSuccess;
+      if (localStoreSuccess) result.localCleared++;
 
-      // Clear cache storage
-      result.details.cacheStorage = await this.clearCacheStorage();
-      if (result.details.cacheStorage) result.localCleared++;
+      result.details.indexedDB = indexedDbSuccess;
+      if (indexedDbSuccess) result.localCleared++;
 
-      // Delete remote data
-      const remoteResult = await this.deleteRemoteData(user.id);
+      result.details.cacheStorage = cacheSuccess;
+      if (cacheSuccess) result.localCleared++;
       
       result.details.learnedItems = remoteResult.deleted.learnedItems;
       result.details.userSettings = remoteResult.deleted.userSettings;
