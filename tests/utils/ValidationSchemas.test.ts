@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
-import { validateInput, sanitizers } from './ValidationSchemas';
+import { validateInput, sanitizers } from '@/utils/ValidationSchemas';
 
 describe('validateInput', () => {
   const schema = z.object({
