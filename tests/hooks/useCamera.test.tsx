@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { useCamera, type CameraConfig } from './useCamera';
+import { useCamera, type CameraConfig } from '@/hooks/useCamera';
 
 // Mock MediaStream
 const mockStream = {

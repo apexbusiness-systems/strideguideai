@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useVisionAnalysis } from './useVisionAnalysis';
+import { useVisionAnalysis } from '@/hooks/useVisionAnalysis';
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
