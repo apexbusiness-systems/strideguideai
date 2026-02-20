@@ -75,7 +75,7 @@ serve(async (req) => {
       await logSecurityEvent(supabase, null, "webhook_signature_failed", "critical", {
         error: error.message
       });
-      return new Response(`Webhook signature verification failed: ${error.message}`, {
+      return new Response(`Webhook signature verification failed`, {
         status: 400
       });
     }
@@ -116,9 +116,8 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: unknown) {
-    const err = error as Error;
     console.error(`[${requestId}] Webhook error:`, error);
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

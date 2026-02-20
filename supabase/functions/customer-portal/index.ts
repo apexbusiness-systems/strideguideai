@@ -105,9 +105,8 @@ serve(async (req) => {
     });
 
   } catch (error: unknown) {
-    const err = error as Error;
     console.error(`[${requestId}] Error creating customer portal:`, error);
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
