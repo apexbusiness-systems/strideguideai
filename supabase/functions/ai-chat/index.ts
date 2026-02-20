@@ -206,7 +206,7 @@ serve(async (req) => {
   } catch (error) {
     console.error(`[${requestId}] AI chat error:`, error);
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: "Internal server error",
       code: "INTERNAL_ERROR" 
     }), {
       status: 500,

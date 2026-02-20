@@ -169,9 +169,8 @@ Deno.serve(async (req: Request) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (error: unknown) {
-    const err = error as Error;
     console.error("Error in create-checkout:", error);
-    return new Response(JSON.stringify({ error: err.message || "Internal server error" }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
