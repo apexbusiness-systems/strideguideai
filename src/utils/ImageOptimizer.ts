@@ -163,25 +163,23 @@ export async function createThumbnail(
 }
 
 /**
- * Batch optimize images
+ * Batch optimize images in parallel
  */
 export async function batchOptimizeImages(
   files: File[],
   options: OptimizationOptions = {}
 ): Promise<OptimizationResult[]> {
-  const results: OptimizationResult[] = [];
-
-  for (const file of files) {
+  const promises = files.map(async (file) => {
     try {
-      const result = await optimizeImage(file, options);
-      results.push(result);
+      return await optimizeImage(file, options);
     } catch (error) {
       console.error(`Failed to optimize ${file.name}:`, error);
-      // Continue with next file
+      return null;
     }
-  }
+  });
 
-  return results;
+  const results = await Promise.all(promises);
+  return results.filter((result): result is OptimizationResult => result !== null);
 }
 
 /**
