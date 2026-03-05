@@ -52,8 +52,8 @@ export default function AuthDiagnosticsPage() {
     // 4. Real sign-in attempt (dummy credentials)
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: 'test-diagnostic@example.com',
-        password: 'dummy-password-12345',
+        email: `${crypto.randomUUID()}@example.com`,
+        password: crypto.randomUUID(),
       });
       
       if (error) {
