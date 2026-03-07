@@ -88,6 +88,8 @@ export const useLostItemFinder = () => {
   const searchInterval = useRef<NodeJS.Timeout | null>(null);
   const videoStream = useRef<MediaStream | null>(null);
   const capturedSignatures = useRef<VisualSignature[]>([]);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   // Load learned items from encrypted storage
   const loadLearnedItems = useCallback(async () => {
@@ -204,12 +206,27 @@ export const useLostItemFinder = () => {
       // Fixed: Added comprehensive error handling to prevent silent failures
       searchInterval.current = setInterval(async () => {
         try {
-          const canvas = document.createElement('canvas');
-          const video = document.querySelector('video');
+          // Reuse canvas and video element to avoid GC pressure and DOM query overhead
+          if (!canvasRef.current) {
+            canvasRef.current = document.createElement('canvas');
+          }
+          const canvas = canvasRef.current;
+
+          if (!videoRef.current) {
+            videoRef.current = document.querySelector('video');
+          }
+          const video = videoRef.current;
+
           if (!video) return;
           
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
+          // Only update canvas dimensions if they changed
+          if (canvas.width !== video.videoWidth) {
+            canvas.width = video.videoWidth;
+          }
+          if (canvas.height !== video.videoHeight) {
+            canvas.height = video.videoHeight;
+          }
+
           const ctx = canvas.getContext('2d');
           if (!ctx) return;
           
@@ -274,6 +291,7 @@ export const useLostItemFinder = () => {
   const stopSearching = useCallback(() => {
     setIsSearching(false);
     setCurrentSearchResult(null);
+    videoRef.current = null; // Clear cached video element
     
     if (searchInterval.current) {
       clearInterval(searchInterval.current);
@@ -350,6 +368,9 @@ export const useLostItemFinder = () => {
         videoStream.current.getTracks().forEach(track => track.stop());
         videoStream.current = null;
       }
+
+      canvasRef.current = null;
+      videoRef.current = null;
     };
   }, []);
 
