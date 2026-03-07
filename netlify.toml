@@ -5,6 +5,29 @@
   publish = "dist"
   command = "npm run build"
 
+# Global Security Headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(self), microphone=(), geolocation=(self), payment=()"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Resource-Policy = "same-origin"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://yrndifsbsmpvmpudglcc.supabase.co wss://yrndifsbsmpvmpudglcc.supabase.co https://api.stripe.com https://api.openai.com https://huggingface.co https://cdn.jsdelivr.net; img-src 'self' data: blob: https://*.supabase.co; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://js.stripe.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src https://js.stripe.com https://hooks.stripe.com; worker-src 'self' blob:; base-uri 'self'; form-action 'self' https://checkout.stripe.com; frame-ancestors 'none';"
+
+# CORS for API endpoints
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "https://yrndifsbsmpvmpudglcc.supabase.co"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "authorization, x-client-info, apikey, content-type, stripe-signature"
+    Access-Control-Max-Age = "86400"
+
 # Production cache headers
 [[headers]]
   for = "/index.html"
