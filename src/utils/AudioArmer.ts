@@ -50,10 +50,12 @@ class AudioArmerClass {
       cold: { frequency: 200, duration: 0.1, type: 'sine' as OscillatorType }
     };
 
-    for (const [name, config] of Object.entries(earconDefinitions)) {
-      const buffer = await this.createEarcon(config);
-      this.earcons.set(name, buffer);
-    }
+    await Promise.all(
+      Object.entries(earconDefinitions).map(async ([name, config]) => {
+        const buffer = await this.createEarcon(config);
+        this.earcons.set(name, buffer);
+      })
+    );
   }
 
   private async createEarcon(config: {
