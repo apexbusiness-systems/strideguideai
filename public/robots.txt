@@ -24,7 +24,6 @@ Allow: /
 Disallow: /api/
 Disallow: /_diag
 Disallow: /auth-diagnostics
-Disallow: /auth-min
 
 # Disallow crawling of service worker and cache files
 Disallow: /sw.js

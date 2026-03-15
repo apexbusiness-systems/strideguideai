@@ -8,7 +8,6 @@ import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { NoAIHypeFooter } from "@/components/sections/NoAIHypeFooter";
 // import { useAnalytics } from "@/hooks/useAnalytics";
 import { SEOHead } from "@/components/SEOHead";
-// import { QuickActionsCard } from "@/components/dashboard/QuickActionsCard";     
 
 const Index = () => {
   // const { trackPageView } = useAnalytics();
@@ -110,7 +109,6 @@ const Index = () => {
                   <p className="text-muted-foreground">
                     Jump straight into the workflows you use every day. These shortcuts survive refreshes and deep links.
                   </p>
-                  {/* <QuickActionsCard /> */}
                   <div className="p-4 bg-card rounded-lg">
                     <p className="text-muted-foreground">Quick Actions Coming Soon</p>
                   </div>

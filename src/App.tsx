@@ -22,7 +22,6 @@ const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const HelpPage = lazy(() => import("./pages/HelpPage"));
 const AuthDiagnosticsPage = lazy(() => import("./pages/AuthDiagnosticsPage"));
-const AuthMinPage = lazy(() => import("./pages/AuthMinPage"));
 const Diag = lazy(() => import("./pages/_diag"));
 const VoiceAssistantPage = lazy(() => import("./pages/VoiceAssistantPage"));
 const PWADiagnosticsPage = lazy(() => import("./pages/PWADiagnosticsPage"));
@@ -188,7 +187,6 @@ const App = () => {
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/voice" element={<VoiceAssistantPage />} />
                 <Route path="/auth-diagnostics" element={<AuthDiagnosticsPage />} />
-                <Route path="/auth-min" element={<AuthMinPage />} />
                 <Route path="/_diag" element={<Diag />} />
                 <Route path="/pwa-diagnostics" element={<PWADiagnosticsPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
