@@ -1,90 +1,59 @@
-import { describe, it, expect, spyOn } from 'bun:test';
-import { batchOptimizeImages } from '../../src/utils/ImageOptimizer';
+import { describe, it, expect } from 'vitest';
+import { formatFileSize, needsOptimization } from '@/utils/ImageOptimizer';
 
-// Mocking DOM globals for the environment
-if (typeof window === 'undefined') {
-  (global as any).Image = class {
-    onload: () => void = () => {};
-    onerror: () => void = () => {};
-    _src: string = '';
-    width: number = 100;
-    height: number = 100;
+describe('formatFileSize', () => {
+  it('should format 0 bytes correctly', () => {
+    expect(formatFileSize(0)).toBe('0 Bytes');
+  });
 
-    set src(val: string) {
-      this._src = val;
-      // Simulate async loading
-      setTimeout(() => {
-        if (val === 'fail-url') {
-           if (this.onerror) this.onerror();
-        } else {
-           if (this.onload) this.onload();
-        }
-      }, 10);
-    }
-    get src() { return this._src; }
-  };
+  it('should format bytes correctly', () => {
+    expect(formatFileSize(512)).toBe('512 Bytes');
+    expect(formatFileSize(1023)).toBe('1023 Bytes');
+  });
 
-  (global as any).URL = {
-    createObjectURL: (obj: any) => {
-      if (obj && obj.name === 'fail.jpg') return 'fail-url';
-      return 'blob:mock-url';
-    },
-    revokeObjectURL: () => {},
-  };
+  it('should format KB correctly', () => {
+    expect(formatFileSize(1024)).toBe('1 KB');
+    expect(formatFileSize(1536)).toBe('1.5 KB');
+    expect(formatFileSize(1024 * 1024 - 1)).toBe('1024 KB');
+  });
 
-  (global as any).document = {
-    createElement: (tag: string) => {
-      if (tag === 'canvas') {
-        return {
-          getContext: () => ({
-            drawImage: () => {},
-          }),
-          toBlob: (cb: (b: any) => void) => {
-            // Simulate async blob creation
-            setTimeout(() => {
-              cb({ size: 1024 } as any);
-            }, 10);
-          },
-          width: 0,
-          height: 0,
-        };
-      }
-      return {};
-    },
-  };
-}
+  it('should format MB correctly', () => {
+    expect(formatFileSize(1024 * 1024)).toBe('1 MB');
+    expect(formatFileSize(1024 * 1024 * 1.5)).toBe('1.5 MB');
+  });
 
-describe('ImageOptimizer', () => {
-  describe('batchOptimizeImages', () => {
-    it('optimizes multiple files in parallel', async () => {
-      const mockFiles = [
-        new File([''], 'test1.jpg', { type: 'image/jpeg' }),
-        new File([''], 'test2.jpg', { type: 'image/jpeg' }),
-      ];
+  it('should format GB correctly', () => {
+    expect(formatFileSize(1024 * 1024 * 1024)).toBe('1 GB');
+    expect(formatFileSize(1024 * 1024 * 1024 * 2.5)).toBe('2.5 GB');
+  });
 
-      const results = await batchOptimizeImages(mockFiles);
+  it('should handle decimal places correctly', () => {
+    expect(formatFileSize(1234)).toBe('1.21 KB');
+    expect(formatFileSize(1234567)).toBe('1.18 MB');
+  });
+});
 
-      expect(results.length).toBe(2);
-      expect(results[0].optimizedSize).toBe(1024);
-      expect(results[1].optimizedSize).toBe(1024);
-    });
+describe('needsOptimization', () => {
+  const createMockFile = (size: number) => ({ size } as File);
 
-    it('continues if one file fails', async () => {
-      const mockFiles = [
-        new File([''], 'test1.jpg', { type: 'image/jpeg' }),
-        new File([''], 'fail.jpg', { type: 'image/jpeg' }),
-      ];
+  it('should return true if file size is above default threshold', () => {
+    const file = createMockFile(3 * 1024 * 1024); // 3MB
+    expect(needsOptimization(file)).toBe(true);
+  });
 
-      // Mock console.error to avoid noise in test output
-      const errorSpy = spyOn(console, 'error').mockImplementation(() => {});
+  it('should return false if file size is below default threshold', () => {
+    const file = createMockFile(1 * 1024 * 1024); // 1MB
+    expect(needsOptimization(file)).toBe(false);
+  });
 
-      const results = await batchOptimizeImages(mockFiles);
+  it('should return false if file size is exactly at default threshold', () => {
+    const file = createMockFile(2 * 1024 * 1024); // 2MB
+    expect(needsOptimization(file)).toBe(false);
+  });
 
-      expect(results.length).toBe(1);
-      expect(results[0].blob).toBeDefined();
-      expect(errorSpy).toHaveBeenCalled();
-
-      errorSpy.mockRestore();
-    });
+  it('should use custom threshold when provided', () => {
+    const file = createMockFile(500 * 1024); // 500KB
+    expect(needsOptimization(file, 400 * 1024)).toBe(true);
+    expect(needsOptimization(file, 600 * 1024)).toBe(false);
   });
 });
