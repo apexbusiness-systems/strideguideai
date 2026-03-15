@@ -49,7 +49,7 @@ export function AuthDiagnosticsInline() {
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: `diag-${crypto.randomUUID()}@example.com`,
+        email: `${crypto.randomUUID()}@example.com`,
         password: crypto.randomUUID(),
       });
       results.authTest = error?.message || 'OK';

@@ -52,7 +52,7 @@ export default function AuthDiagnosticsPage() {
     // 4. Real sign-in attempt (dummy credentials)
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: `diag-${crypto.randomUUID()}@example.com`,
+        email: `${crypto.randomUUID()}@example.com`,
         password: crypto.randomUUID(),
       });
       
