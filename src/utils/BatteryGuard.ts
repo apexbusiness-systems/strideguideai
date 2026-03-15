@@ -3,7 +3,7 @@
  * Prevents excessive drain during guidance sessions
  */
 
-class BatteryGuardClass {
+export class BatteryGuardClass {
   private battery: BatteryManager | null = null;
   private batterySupported = 'getBattery' in navigator;
   private lowBatteryThreshold = 0.15; // 15%
