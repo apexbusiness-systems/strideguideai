@@ -20,7 +20,7 @@ interface InstallState {
   installType: 'native' | 'manual' | 'none';
 }
 
-class InstallManagerClass {
+export class InstallManagerClass {
   private deferredPrompt: BeforeInstallPromptEvent | null = null;
   private listeners: ((state: InstallState) => void)[] = [];
   private currentState: InstallState = {
@@ -57,12 +57,14 @@ class InstallManagerClass {
 
   private checkInstallState(): void {
     // Check if running in standalone mode
+    if (typeof window === 'undefined') return;
+
     const nav = window.navigator as Navigator & { standalone?: boolean };
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+    const isStandalone = window.matchMedia?.('(display-mode: standalone)').matches ||
                         nav.standalone ||
                         document.referrer.includes('android-app://');
 
-    this.currentState.isInstalled = isStandalone;
+    this.currentState.isInstalled = !!isStandalone;
     
     // If already installed, can't install again
     if (isStandalone) {
@@ -71,6 +73,8 @@ class InstallManagerClass {
   }
 
   private setupEventListeners(): void {
+    if (typeof window === 'undefined') return;
+
     // Listen for beforeinstallprompt (Android/Desktop)
     window.addEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt.bind(this));
     
@@ -78,8 +82,10 @@ class InstallManagerClass {
     window.addEventListener('appinstalled', this.handleAppInstalled.bind(this));
     
     // Listen for display mode changes
-    const mediaQuery = window.matchMedia('(display-mode: standalone)');
-    mediaQuery.addEventListener('change', this.handleDisplayModeChange.bind(this));
+    if (window.matchMedia) {
+      const mediaQuery = window.matchMedia('(display-mode: standalone)');
+      mediaQuery.addEventListener('change', this.handleDisplayModeChange.bind(this));
+    }
   }
 
   private handleBeforeInstallPrompt(event: Event): void {
