@@ -272,21 +272,19 @@ export class PWADiagnostic {
       };
     }
 
-    const found: string[] = [];
-    const missing: string[] = [];
-
-    for (const icon of manifest.icons) {
-      try {
-        const response = await fetch(icon.src, { method: 'HEAD' });
-        if (response.ok) {
-          found.push(icon.src);
-        } else {
-          missing.push(icon.src);
+    const results = await Promise.all(
+      manifest.icons.map(async (icon) => {
+        try {
+          const response = await fetch(icon.src, { method: 'HEAD' });
+          return { src: icon.src, ok: response.ok };
+        } catch {
+          return { src: icon.src, ok: false };
         }
-      } catch {
-        missing.push(icon.src);
-      }
-    }
+      })
+    );
+
+    const found = results.filter((r) => r.ok).map((r) => r.src);
+    const missing = results.filter((r) => !r.ok).map((r) => r.src);
 
     const hasRequiredIcons = found.length >= 2; // At least 192x192 and 512x512
 
