@@ -197,7 +197,7 @@ export function createSafeErrorMessage(): string {
 }
 
 // Rate limiting for safety-critical operations
-class RateLimiter {
+export class RateLimiter {
   private attempts: Map<string, number[]> = new Map();
   private readonly maxAttempts: number;
   private readonly windowMs: number;
