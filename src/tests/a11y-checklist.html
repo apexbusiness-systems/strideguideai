@@ -67,6 +67,30 @@
         // Set timestamp
         document.getElementById('timestamp').textContent = new Date().toISOString();
 
+        // Secure rendering helper to avoid XSS via innerHTML
+        function renderResult(container, status, message, issues = []) {
+            const results = typeof container === 'string' ? document.getElementById(container) : container;
+            if (!results) return;
+
+            // Safe clear and append
+            results.textContent = '';
+
+            const p = document.createElement('p');
+            p.className = status;
+            p.textContent = message;
+            results.appendChild(p);
+
+            if (issues.length > 0) {
+                const ul = document.createElement('ul');
+                issues.forEach(issue => {
+                    const li = document.createElement('li');
+                    li.textContent = issue;
+                    ul.appendChild(li);
+                });
+                results.appendChild(ul);
+            }
+        }
+
         // Touch Target Size Validator
         function validateTouchTargets() {
             const results = document.getElementById('target-results');
@@ -84,10 +108,9 @@
             });
 
             if (issues.length === 0) {
-                results.innerHTML = '<p class="pass">✅ All touch targets meet minimum size requirements</p>';
+                renderResult(results, 'pass', '✅ All touch targets meet minimum size requirements');
             } else {
-                results.innerHTML = '<p class="fail">❌ Touch target issues found:</p><ul>' + 
-                    issues.map(issue => `<li>${issue}</li>`).join('') + '</ul>';
+                renderResult(results, 'fail', '❌ Touch target issues found:', issues);
             }
         }
 
@@ -130,10 +153,9 @@
             });
 
             if (issues.length === 0) {
-                results.innerHTML = '<p class="pass">✅ All elements have proper ARIA labels</p>';
+                renderResult(results, 'pass', '✅ All elements have proper ARIA labels');
             } else {
-                results.innerHTML = '<p class="fail">❌ ARIA issues found:</p><ul>' + 
-                    issues.map(issue => `<li>${issue}</li>`).join('') + '</ul>';
+                renderResult(results, 'fail', '❌ ARIA issues found:', issues);
             }
         }
 
@@ -164,11 +186,13 @@
             });
 
             if (issues.length === 0) {
-                results.innerHTML = '<p class="pass">✅ No obvious contrast issues detected</p>' +
-                    '<p class="warn">⚠️ Use axe-core or WAVE for comprehensive contrast analysis</p>';
+                renderResult(results, 'pass', '✅ No obvious contrast issues detected');
+                const warn = document.createElement('p');
+                warn.className = 'warn';
+                warn.textContent = '⚠️ Use axe-core or WAVE for comprehensive contrast analysis';
+                results.appendChild(warn);
             } else {
-                results.innerHTML = '<p class="fail">❌ Contrast issues found:</p><ul>' + 
-                    issues.map(issue => `<li>${issue}</li>`).join('') + '</ul>';
+                renderResult(results, 'fail', '❌ Contrast issues found:', issues);
             }
         }
 
@@ -195,10 +219,9 @@
             });
 
             if (issues.length === 0) {
-                results.innerHTML = '<p class="pass">✅ All focusable elements have visible focus indicators</p>';
+                renderResult(results, 'pass', '✅ All focusable elements have visible focus indicators');
             } else {
-                results.innerHTML = '<p class="fail">❌ Focus issues found:</p><ul>' + 
-                    issues.map(issue => `<li>${issue}</li>`).join('') + '</ul>';
+                renderResult(results, 'fail', '❌ Focus issues found:', issues);
             }
         }
 
@@ -231,10 +254,9 @@
             }
 
             if (issues.length === 0) {
-                results.innerHTML = '<p class="pass">✅ Screen reader structure looks good</p>';
+                renderResult(results, 'pass', '✅ Screen reader structure looks good');
             } else {
-                results.innerHTML = '<p class="warn">⚠️ Screen reader issues found:</p><ul>' + 
-                    issues.map(issue => `<li>${issue}</li>`).join('') + '</ul>';
+                renderResult(results, 'warn', '⚠️ Screen reader issues found:', issues);
             }
         }
 
