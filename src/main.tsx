@@ -1,7 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { SW_VERSION } from "./sw-version";
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/600.css";
 import "@fontsource/inter/800.css";
@@ -24,11 +23,6 @@ import { loadRuntimeConfig } from "./config/runtime";
 
 // Register SW in production only (using new v3 module)
 registerSW();
-// #region agent log
-if (import.meta.env.DEV) {
-  console.log('[App] SW registration initialized, version:', SW_VERSION);
-}
-// #endregion
 
 // Preload critical resources
 const preloadCritical = () => {
