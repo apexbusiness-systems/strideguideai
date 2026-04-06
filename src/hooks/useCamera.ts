@@ -122,7 +122,8 @@ export const useCamera = (config: CameraConfig) => {
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    // Optimize canvas for frequent getImageData calls (CPU vs GPU memory transfer)
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
     if (!ctx) {
       return null;
