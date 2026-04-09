@@ -282,7 +282,7 @@ export class AccessibilityManager {
    * Enhance individual form field
    */
   private enhanceFormField(field: HTMLInputElement): void {
-    const fieldId = field.id || `field-${Math.random().toString(36).substr(2, 9)}`;
+    const fieldId = field.id || `field-${crypto.randomUUID()}`;
     field.id = fieldId;
     
     // Ensure label association

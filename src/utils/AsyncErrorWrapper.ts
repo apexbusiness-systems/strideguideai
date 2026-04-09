@@ -20,7 +20,7 @@ export async function wrapAsync<T>(
   fn: () => Promise<T>,
   options: AsyncWrapperOptions
 ): Promise<T | undefined> {
-  const correlationId = `async_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const correlationId = `async_${Date.now()}_${crypto.randomUUID()}`;
 
   try {
     return await fn();

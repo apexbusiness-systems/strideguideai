@@ -75,7 +75,7 @@ class ProductionLogger {
    */
   private getSessionId(): string {
     // In a real implementation, this would get the actual session ID
-    return 'session_' + Math.random().toString(36).substr(2, 9);
+    return 'session_' + crypto.randomUUID();
   }
 
   /**
