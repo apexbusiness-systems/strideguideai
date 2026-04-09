@@ -103,7 +103,7 @@ export class OfflineQueue {
       };
     }
 
-    const id = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const id = `req_${Date.now()}_${crypto.randomUUID()}`;
 
     const queuedRequest: QueuedRequest = {
       id,
