@@ -81,22 +81,22 @@ export const AdminDashboard = () => {
   }, [toast]);
 
   const loadStats = async () => {
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, created_at");
-
-    const { data: activeSubscriptions } = await supabase
-      .from("user_subscriptions")
-      .select(`
-        *,
-        subscription_plans!inner(price_monthly)
-      `)
-      .eq("status", "active");
-
-    const { data: billingEvents } = await supabase
-      .from("billing_events")
-      .select("amount, created_at")
-      .eq("status", "succeeded");
+    const [
+      { data: profiles },
+      { data: activeSubscriptions },
+      { data: billingEvents }
+    ] = await Promise.all([
+      supabase.from("profiles").select("id, created_at"),
+      supabase.from("user_subscriptions")
+        .select(`
+          *,
+          subscription_plans!inner(price_monthly)
+        `)
+        .eq("status", "active"),
+      supabase.from("billing_events")
+        .select("amount, created_at")
+        .eq("status", "succeeded")
+    ]);
 
     const totalUsers = profiles?.length || 0;
     const activeSubs = activeSubscriptions?.length || 0;
