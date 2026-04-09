@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { AudioRecorder, encodeAudioForAPI, playAudioData, clearAudioQueue } from '@/utils/RealtimeAudio';
 import { Mic, MicOff, Phone, PhoneOff } from 'lucide-react';
+import { logger } from '@/utils/ProductionLogger';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -30,19 +31,19 @@ const VoiceAssistant = () => {
 
   const startConversation = async () => {
     try {
-      console.log('Starting voice conversation...');
+      logger.info('Starting voice conversation...');
       
       // Initialize audio context
       audioContextRef.current = new AudioContext({ sampleRate: 24000 });
       
       // Connect to WebSocket
       const wsUrl = getWebSocketUrl();
-      console.log('Connecting to:', wsUrl);
+      logger.info('Connecting to voice assistant', { url: wsUrl });
       
       wsRef.current = new WebSocket(wsUrl);
 
       wsRef.current.onopen = async () => {
-        console.log('WebSocket connected');
+        logger.info('WebSocket connected');
         setIsConnected(true);
         
         // Start audio recording
@@ -66,7 +67,7 @@ const VoiceAssistant = () => {
 
       wsRef.current.onmessage = async (event) => {
         const data = JSON.parse(event.data);
-        console.log('Received event:', data.type);
+        logger.debug('Received WebSocket event', { type: data.type });
 
         if (data.type === 'response.audio.delta') {
           setIsAssistantSpeaking(true);
@@ -101,7 +102,7 @@ const VoiceAssistant = () => {
             }]);
           }
         } else if (data.type === 'error') {
-          console.error('OpenAI error:', data.error);
+          logger.error('OpenAI error', { error: data.error });
           toast({
             title: "Error",
             description: data.error.message || "Something went wrong",
@@ -111,7 +112,7 @@ const VoiceAssistant = () => {
       };
 
       wsRef.current.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        logger.error('WebSocket error', { error });
         toast({
           title: "Connection error",
           description: "Failed to connect to voice assistant",
@@ -120,12 +121,12 @@ const VoiceAssistant = () => {
       };
 
       wsRef.current.onclose = () => {
-        console.log('WebSocket closed');
+        logger.info('WebSocket closed');
         endConversation();
       };
 
     } catch (error) {
-      console.error('Error starting conversation:', error);
+      logger.error('Error starting conversation', { error });
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : 'Failed to start conversation',
@@ -135,7 +136,7 @@ const VoiceAssistant = () => {
   };
 
   const endConversation = () => {
-    console.log('Ending conversation...');
+    logger.info('Ending conversation...');
     
     // Stop recorder
     recorderRef.current?.stop();
