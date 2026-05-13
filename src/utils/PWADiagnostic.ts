@@ -272,7 +272,7 @@ export class PWADiagnostic {
       };
     }
 
-    const iconChecks = await Promise.all(
+    const results = await Promise.all(
       manifest.icons.map(async (icon) => {
         try {
           const response = await fetch(icon.src, { method: 'HEAD' });
@@ -283,8 +283,8 @@ export class PWADiagnostic {
       })
     );
 
-    const found = iconChecks.filter((check) => check.ok).map((check) => check.src);
-    const missing = iconChecks.filter((check) => !check.ok).map((check) => check.src);
+    const found = results.filter((r) => r.ok).map((r) => r.src);
+    const missing = results.filter((r) => !r.ok).map((r) => r.src);
 
     const hasRequiredIcons = found.length >= 2; // At least 192x192 and 512x512
 
