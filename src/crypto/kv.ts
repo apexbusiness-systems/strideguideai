@@ -17,6 +17,18 @@ class EncryptedKVClass {
   private readonly STORE_NAME = 'encrypted-data';
   private readonly KEY_STORE_NAME = 'device-keys';
 
+  private assertDbInitialized(): asserts this is this & { db: IDBDatabase } {
+    if (!this.db) {
+      throw new Error('Database not initialized');
+    }
+  }
+
+  private assertCryptoKeyInitialized(): asserts this is this & { cryptoKey: CryptoKey } {
+    if (!this.cryptoKey) {
+      throw new Error('Crypto key not initialized');
+    }
+  }
+
   async initialize(): Promise<void> {
     if (this.db) return;
 
@@ -63,10 +75,10 @@ class EncryptedKVClass {
   }
 
   private async getStoredKey(): Promise<StoredKey | null> {
-    if (!this.db) throw new Error('Database not initialized');
+    this.assertDbInitialized();
     
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.KEY_STORE_NAME], 'readonly');
+      const transaction = this.db.transaction([this.KEY_STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.KEY_STORE_NAME);
       const request = store.get('master-key');
       
@@ -192,10 +204,10 @@ class EncryptedKVClass {
   }
 
   private async storeWrappedKey(storedKey: StoredKey): Promise<void> {
-    if (!this.db) throw new Error('Database not initialized');
+    this.assertDbInitialized();
     
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.KEY_STORE_NAME], 'readwrite');
+      const transaction = this.db.transaction([this.KEY_STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.KEY_STORE_NAME);
       const request = store.put(storedKey, 'master-key');
       
@@ -205,7 +217,7 @@ class EncryptedKVClass {
   }
 
   async encrypt(data: Uint8Array): Promise<Uint8Array> {
-    if (!this.cryptoKey) throw new Error('Crypto key not initialized');
+    this.assertCryptoKeyInitialized();
     
     const iv = crypto.getRandomValues(new Uint8Array(12));
     // Ensure data is proper BufferSource for crypto API
@@ -225,7 +237,7 @@ class EncryptedKVClass {
   }
 
   async decrypt(encryptedData: Uint8Array): Promise<Uint8Array> {
-    if (!this.cryptoKey) throw new Error('Crypto key not initialized');
+    this.assertCryptoKeyInitialized();
     
     // Extract IV and encrypted data
     const iv = encryptedData.slice(0, 12);
@@ -241,12 +253,12 @@ class EncryptedKVClass {
   }
 
   async store(key: string, data: Uint8Array): Promise<void> {
-    if (!this.db) throw new Error('Database not initialized');
+    this.assertDbInitialized();
     
     const encrypted = await this.encrypt(data);
     
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.STORE_NAME], 'readwrite');
+      const transaction = this.db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
       const request = store.put(encrypted, key);
       
@@ -256,10 +268,10 @@ class EncryptedKVClass {
   }
 
   async retrieve(key: string): Promise<Uint8Array | null> {
-    if (!this.db) throw new Error('Database not initialized');
+    this.assertDbInitialized();
     
     const encrypted = await new Promise<Uint8Array | null>((resolve, reject) => {
-      const transaction = this.db!.transaction([this.STORE_NAME], 'readonly');
+      const transaction = this.db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
       const request = store.get(key);
       
@@ -273,10 +285,10 @@ class EncryptedKVClass {
   }
 
   async delete(key: string): Promise<void> {
-    if (!this.db) throw new Error('Database not initialized');
+    this.assertDbInitialized();
     
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.STORE_NAME], 'readwrite');
+      const transaction = this.db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
       const request = store.delete(key);
       
@@ -286,10 +298,10 @@ class EncryptedKVClass {
   }
 
   async deleteAll(): Promise<void> {
-    if (!this.db) throw new Error('Database not initialized');
+    this.assertDbInitialized();
     
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.STORE_NAME, this.KEY_STORE_NAME], 'readwrite');
+      const transaction = this.db.transaction([this.STORE_NAME, this.KEY_STORE_NAME], 'readwrite');
       
       const dataStore = transaction.objectStore(this.STORE_NAME);
       const keyStore = transaction.objectStore(this.KEY_STORE_NAME);
@@ -306,10 +318,10 @@ class EncryptedKVClass {
   }
 
   async list(): Promise<string[]> {
-    if (!this.db) throw new Error('Database not initialized');
+    this.assertDbInitialized();
     
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.STORE_NAME], 'readonly');
+      const transaction = this.db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
       const request = store.getAllKeys();
       

@@ -193,32 +193,43 @@ class MLProcessorClass {
   }
 
   async detectInRegions(imageData: ImageData, targetEmbedding: Float32Array): Promise<DetectionResult[]> {
-    const results: DetectionResult[] = [];
     const gridSize = 3;
     const regionWidth = Math.floor(imageData.width / gridSize);
     const regionHeight = Math.floor(imageData.height / gridSize);
+    const regions: { x: number; y: number; data: ImageData }[] = [];
 
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
         const x = col * regionWidth;
         const y = row * regionHeight;
-        
-        const regionData = this.extractRegion(imageData, x, y, regionWidth, regionHeight);
-        const { embedding, confidence } = await this.computeEmbedding(regionData);
-        
-        const similarity = this.computeCosineSimilarity(embedding, targetEmbedding);
-        
-        if (similarity > 0.5) {
-          results.push({
-            bbox: [x, y, regionWidth, regionHeight],
-            confidence: similarity * confidence,
-            embedding
-          });
-        }
+        regions.push({
+          x,
+          y,
+          data: this.extractRegion(imageData, x, y, regionWidth, regionHeight)
+        });
       }
     }
 
-    return results.sort((a, b) => b.confidence - a.confidence);
+    // Parallelize embedding computation for all regions
+    const results = await Promise.all(
+      regions.map(async (region) => {
+        const { embedding, confidence } = await this.computeEmbedding(region.data);
+        const similarity = this.computeCosineSimilarity(embedding, targetEmbedding);
+
+        if (similarity > 0.5) {
+          return {
+            bbox: [region.x, region.y, regionWidth, regionHeight] as [number, number, number, number],
+            confidence: similarity * confidence,
+            embedding
+          };
+        }
+        return null;
+      })
+    );
+
+    return results
+      .filter((r): r is DetectionResult => r !== null)
+      .sort((a, b) => b.confidence - a.confidence);
   }
 
   private extractRegion(imageData: ImageData, x: number, y: number, width: number, height: number): ImageData {

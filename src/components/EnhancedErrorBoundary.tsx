@@ -42,7 +42,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    const correlationId = `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const correlationId = `err_${Date.now()}_${crypto.randomUUID()}`;
 
     // Log to production logger
     logger.error('React Error Boundary caught error', {

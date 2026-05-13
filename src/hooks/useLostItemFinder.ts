@@ -135,7 +135,8 @@ export const useLostItemFinder = () => {
     if (!isTeaching || !teachingInfo) return false;
     
     try {
-      const ctx = canvas.getContext('2d');
+      // Optimize canvas for frequent getImageData calls (CPU vs GPU memory transfer)
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
       if (!ctx) return false;
       
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -227,7 +228,8 @@ export const useLostItemFinder = () => {
             canvas.height = video.videoHeight;
           }
 
-          const ctx = canvas.getContext('2d');
+          // Optimize canvas for frequent getImageData calls (CPU vs GPU memory transfer)
+          const ctx = canvas.getContext('2d', { willReadFrequently: true });
           if (!ctx) return;
           
           ctx.drawImage(video, 0, 0);

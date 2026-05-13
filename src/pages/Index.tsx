@@ -6,16 +6,9 @@ import { ImpactStrip } from "@/components/sections/ImpactStrip";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";        
 import { NoAIHypeFooter } from "@/components/sections/NoAIHypeFooter";
-// import { useAnalytics } from "@/hooks/useAnalytics";
 import { SEOHead } from "@/components/SEOHead";
 
 const Index = () => {
-  // const { trackPageView } = useAnalytics();
-
-  // useEffect(() => {
-  //   trackPageView("home");
-  // }, [trackPageView]);
-
   const wallpaperStyle = {
     backgroundColor: "hsl(0, 0%, 97%)",
   } as CSSProperties;
